@@ -1,0 +1,133 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+
+  --color-bg-dark: #09090b;
+  --color-bg-card: #18181b;
+  --color-bg-border: #27272a;
+  
+  --color-brand-offwhite: #FAF9F6;
+  --color-brand-lightgray: #F4F4F5;
+  --color-brand-slate: #27272a;
+  
+  --color-brand-blue: #C9082A;
+  --color-brand-blue-muted: #7c051a;
+  
+  --color-brand-green: #10b981;
+  --color-brand-green-muted: #059669;
+  
+  --color-brand-purple: #94041c;
+  --color-brand-purple-muted: #5f010f;
+  
+  --color-brand-orange: #E87722;
+  --color-brand-orange-muted: #C55A11;
+  
+  /* Accent color palette */
+  --color-cyber-cyan: #C9082A;
+  --color-amber-gold: #E87722;
+  
+  --shadow-premium: 0 4px 30px rgba(0, 0, 0, 0.1);
+  --shadow-glow-blue: 0 0 20px rgba(201, 8, 42, 0.15);
+  --shadow-glow-green: 0 0 20px rgba(16, 185, 129, 0.15);
+  --shadow-glow-purple: 0 0 20px rgba(148, 4, 28, 0.15);
+  --shadow-glow-orange: 0 0 20px rgba(232, 119, 34, 0.15);
+}
+
+@layer base {
+  html {
+    font-size: 17px;
+  }
+  body {
+    @apply bg-[#0B0F19] text-brand-offwhite antialiased font-sans selection:bg-brand-blue/30 selection:text-white;
+  }
+}
+
+/* Custom premium scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}
+
+/* Animated glow styles */
+.glow-on-hover:hover {
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.05);
+}
+
+/* Vertical Scroller Keyframes */
+@keyframes scroll-y {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+.animate-scroll-y {
+  animation: scroll-y 20s linear infinite;
+}
+
+/* Spin Slow Animation */
+@keyframes spin-slow {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}
+
+/* Fade In Animation */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-in {
+  animation: fade-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Mesh Background Animations */
+@keyframes mesh-pulse {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.bg-gradient-radial-mesh {
+  background: radial-gradient(circle at 20% 30%, rgba(201, 8, 42, 0.15), transparent 50%),
+              radial-gradient(circle at 80% 70%, rgba(148, 4, 28, 0.12), transparent 50%),
+              radial-gradient(circle at 50% 50%, rgba(232, 119, 34, 0.04), transparent 40%);
+  background-size: 200% 200%;
+}
+
+.animate-mesh-slow {
+  animation: mesh-pulse 15s ease infinite;
+}
+
