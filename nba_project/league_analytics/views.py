@@ -7,8 +7,10 @@ from .services import (
     get_era_comparison,
     get_player_era_context,
     get_era_rankings,
-    get_era_trends
+    get_era_trends,
+    get_basketball_news
 )
+
 
 class EraSummaryView(APIView):
     permission_classes = [AllowAny]
@@ -68,4 +70,17 @@ class PlayerEraContextView(APIView):
             return Response(data, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class NewsArticlesView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        query = request.query_params.get('q')
+        try:
+            data = get_basketball_news(query=query)
+            return Response(data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 

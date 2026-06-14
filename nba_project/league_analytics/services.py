@@ -1,5 +1,8 @@
 from django.db.models import Avg, Max, F, StdDev
 from players.models import Player, PlayerSeasonStats
+import requests
+from django.conf import settings
+
 
 def get_era_summaries():
     """
@@ -334,4 +337,89 @@ def get_era_trends():
             'avg_usage_rate_pct': round((s['avg_usage_rate'] or 0.0) * 100, 2)
         })
     return trends
+
+
+def get_basketball_news(query=None):
+    """
+    Fetches the latest basketball news using News API.
+    If News API key is missing, rate-limited, or fails, falls back to mock basketball news articles.
+    """
+    api_key = getattr(settings, 'NEWS_API_KEY', '')
+    search_query = query if query else 'basketball OR NBA'
+    
+    # Pre-configure beautiful mock fallback articles for resilient design
+    mock_articles = [
+        {
+            "title": "Championship Chase: Inside the Intense Battle for the Larry O'Brien Trophy",
+            "description": "As the playoffs heat up, we break down the key matchups, tactical adjustments, and superstar performances defining this year's championship run.",
+            "url": "https://nba.com",
+            "image_url": "https://images.unsplash.com/photo-1546519638-68e109498ffc?w=800&auto=format&fit=crop&q=60",
+            "source": "Hoops Network",
+            "published_at": "2026-06-14T21:00:00Z"
+        },
+        {
+            "title": "Rise of the Positionless Player: How Modern Analytics Reshaped the Court",
+            "description": "Exploring how standard guard and big roles have merged into multi-talented wing structures, leading to the most dynamic offense era in league history.",
+            "url": "https://nba.com",
+            "image_url": "https://images.unsplash.com/photo-1505666287802-931dc83948e9?w=800&auto=format&fit=crop&q=60",
+            "source": "Timeline Court Daily",
+            "published_at": "2026-06-14T18:30:00Z"
+        },
+        {
+            "title": "Rookie Rankings: Which First-Year Players Are Making the Biggest Impact?",
+            "description": "An in-depth look at this year's draft class, highlighting players who are immediately contributing to winning basketball and showing franchise cornerstone potential.",
+            "url": "https://nba.com",
+            "image_url": "https://images.unsplash.com/photo-1519766304817-4f37bda74a27?w=800&auto=format&fit=crop&q=60",
+            "source": "Draft Central",
+            "published_at": "2026-06-14T15:45:00Z"
+        },
+        {
+            "title": "Off-Season Trade Rumors: Blockbuster Deals Already Cooking Behind the Scenes",
+            "description": "Front offices are already scheming for the summer. Insiders report multiple multi-team trades are currently being discussed to reshape the league's balance of power.",
+            "url": "https://nba.com",
+            "image_url": "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800&auto=format&fit=crop&q=60",
+            "source": "Inside Hoops",
+            "published_at": "2026-06-14T12:15:00Z"
+        }
+    ]
+
+    if not api_key:
+        return mock_articles
+
+    url = "https://newsapi.org/v2/everything"
+    params = {
+        "q": search_query,
+        "sortBy": "publishedAt",
+        "language": "en",
+        "pageSize": 15,
+        "apiKey": api_key
+    }
+    
+    try:
+        response = requests.get(url, params=params, timeout=5)
+        if response.status_code == 200:
+            data = response.json()
+            articles = data.get("articles", [])
+            
+            parsed_articles = []
+            for art in articles:
+                title = art.get("title")
+                if not title or "[Removed]" in title or "removed" in title.lower():
+                    continue
+                    
+                parsed_articles.append({
+                    "title": title,
+                    "description": art.get("description") or "",
+                    "url": art.get("url") or "",
+                    "image_url": art.get("urlToImage") or "https://images.unsplash.com/photo-1546519638-68e109498ffc?w=800&auto=format&fit=crop&q=60",
+                    "source": art.get("source", {}).get("name") or "News",
+                    "published_at": art.get("publishedAt") or ""
+                })
+            
+            return parsed_articles if parsed_articles else mock_articles
+        else:
+            return mock_articles
+    except Exception:
+        return mock_articles
+
 
