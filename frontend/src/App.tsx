@@ -11,17 +11,34 @@ import { AuthModal } from './components/AuthModal';
 import { api, getAccessToken, clearTokens } from './data/api';
 
 function App() {
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [user, setUser] = useState<{ username: string; email?: string } | null>(null);
+  const [activeTab, setActiveTab] = useState(() => {
+    return sessionStorage.getItem('active_tab') || 'dashboard';
+  });
+  
+  const [user, setUser] = useState<{ username: string; email?: string } | null>(() => {
+    const saved = localStorage.getItem('nba_user');
+    return saved ? JSON.parse(saved) : null;
+  });
+  
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [showLanding, setShowLanding] = useState(true);
+  
+  const [showLanding, setShowLanding] = useState(() => {
+    // If they have bypassed landing or are logged in, don't show landing
+    if (localStorage.getItem('nba_user')) {
+      return false;
+    }
+    return sessionStorage.getItem('bypass_landing') !== 'true';
+  });
 
   const fetchProfile = async () => {
     if (getAccessToken()) {
       try {
         const profile = await api.getProfile();
         if (profile) {
-          setUser({ username: profile.username, email: profile.email });
+          const updatedUser = { username: profile.username, email: profile.email };
+          setUser(updatedUser);
+          localStorage.setItem('nba_user', JSON.stringify(updatedUser));
+          sessionStorage.setItem('bypass_landing', 'true');
           setShowLanding(false); // auto-bypass landing page if already logged in
         }
       } catch (e) {
@@ -34,23 +51,36 @@ function App() {
     fetchProfile();
   }, []);
 
+  const handleSetActiveTab = (tab: string) => {
+    setActiveTab(tab);
+    sessionStorage.setItem('active_tab', tab);
+  };
+
   const handleLogout = () => {
     clearTokens();
+    localStorage.removeItem('nba_user');
+    sessionStorage.removeItem('bypass_landing');
+    sessionStorage.removeItem('active_tab');
     setUser(null);
     setActiveTab('dashboard');
     setShowLanding(true);
   };
 
   const handleAuthSuccess = (username: string) => {
-    setUser({ username });
+    const loggedUser = { username };
+    setUser(loggedUser);
+    localStorage.setItem('nba_user', JSON.stringify(loggedUser));
+    sessionStorage.setItem('bypass_landing', 'true');
     fetchProfile();
     setShowLanding(false);
   };
 
+
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <DashboardPage setActiveTab={setActiveTab} user={user} />;
+        return <DashboardPage setActiveTab={handleSetActiveTab} user={user} />;
+
       // case 'players' removed
       case 'teambuilder':
         return <TeamBuilderPage />;
@@ -108,18 +138,23 @@ function App() {
       <LandingPage 
         onAuthSuccess={handleAuthSuccess} 
         onEnterAsGuest={() => {
-          setUser({ username: 'Guest Analyst', email: 'analyst@timelinecourt.com' });
+          const guestUser = { username: 'Guest Analyst', email: 'analyst@timelinecourt.com' };
+          setUser(guestUser);
+          localStorage.setItem('nba_user', JSON.stringify(guestUser));
+          sessionStorage.setItem('bypass_landing', 'true');
           setShowLanding(false);
         }} 
       />
     );
   }
 
+
   return (
     <>
       <DashboardLayout
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={handleSetActiveTab}
+
         user={user}
         onLogout={handleLogout}
         onLoginClick={() => setShowAuthModal(true)}
