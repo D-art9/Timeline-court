@@ -134,11 +134,23 @@ export const api = {
     try {
       const playersList = await request('/api/players/');
       cachedDbPlayers = playersList;
+      localStorage.setItem('nba_cached_players', JSON.stringify(playersList));
       return playersList;
-    } catch {
+    } catch (err) {
+      const stored = localStorage.getItem('nba_cached_players');
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            cachedDbPlayers = parsed;
+            return parsed;
+          }
+        } catch (_) {}
+      }
       return mockPlayers; // Fallback
     }
   },
+
 
   async getPlayerById(id: string): Promise<any> {
     try {
