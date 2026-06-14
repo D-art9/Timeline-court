@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BentoCard } from '../components/BentoCard';
 import Shuffle from '../components/Shuffle';
 import { AudioPlayer } from '../components/AudioPlayer';
-import { Sparkles, Calendar } from 'lucide-react';
+import { Sparkles, Calendar, RefreshCw, Newspaper, ExternalLink } from 'lucide-react';
+import { api } from '../data/api';
 
 interface DashboardPageProps {
   setActiveTab: (tab: string) => void;
@@ -10,6 +11,28 @@ interface DashboardPageProps {
 }
 
 export const DashboardPage: React.FC<DashboardPageProps> = ({ setActiveTab, user }) => {
+  const [news, setNews] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const loadLatestNews = async () => {
+    setLoading(true);
+    setIsRefreshing(true);
+    try {
+      const articles = await api.getBasketballNews();
+      setNews(articles.slice(0, 3)); // Display top 3 latest stories
+    } catch (err) {
+      console.error("Failed to load live news:", err);
+    } finally {
+      setLoading(false);
+      setTimeout(() => setIsRefreshing(false), 600); // Animation cooldown
+    }
+  };
+
+  useEffect(() => {
+    loadLatestNews();
+  }, []);
+
   return (
     <div className="space-y-8 animate-fade-in font-sans">
       {/* Header Summary Row */}
@@ -201,6 +224,92 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ setActiveTab, user
               <span className="text-[10px] font-bold text-zinc-400 flex items-center gap-1 group-hover:text-white transition-colors">
                 Explore Eras &rarr;
               </span>
+            </div>
+          </div>
+
+          {/* Live News Feed Bento Card */}
+          <div 
+            onClick={loadLatestNews}
+            className="lg:col-span-1 min-h-[300px] relative overflow-hidden rounded-3xl border border-white/5 bg-[#0B0F19] p-6 hover:border-[#10B981]/30 hover:scale-[1.02] transition-all duration-300 group cursor-pointer flex flex-col justify-between shadow-[0_0_40px_rgba(16,185,129,0.01)] w-full"
+          >
+            {/* Soft Emerald Glow Backdrop */}
+            <div className="absolute right-0 bottom-0 w-32 h-32 bg-[#10B981]/5 rounded-full blur-3xl pointer-events-none group-hover:bg-[#10B981]/15 transition-all duration-500" />
+            
+            {/* Header Area */}
+            <div className="flex items-center justify-between z-10">
+              <div className="flex items-center gap-2">
+                <Newspaper className="h-4 w-4 text-[#10B981]" />
+                <span className="text-[10px] uppercase tracking-widest text-[#10B981] font-black">Live Ticker</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {/* Pulsing neon status indicator */}
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <span className="text-[10px] uppercase font-bold text-emerald-400">Live</span>
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    loadLatestNews();
+                  }}
+                  className="p-1 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
+                >
+                  <RefreshCw className={`h-3 w-3 text-zinc-400 ${isRefreshing ? 'animate-spin' : ''}`} />
+                </button>
+              </div>
+            </div>
+            {/* Title & Body */}
+            <div className="mt-3 flex-grow z-10 flex flex-col justify-between">
+              <h3 className="text-xl font-black text-white tracking-tighter mb-3">Basketball Headlines</h3>
+              {loading && news.length === 0 ? (
+                /* Skeleton Loader */
+                <div className="space-y-3 flex-grow">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="animate-pulse flex items-start gap-2">
+                      <div className="h-2 w-2 bg-zinc-800 rounded-full mt-1.5" />
+                      <div className="space-y-1.5 flex-1">
+                        <div className="h-3.5 bg-zinc-800 rounded w-full" />
+                        <div className="h-2 bg-zinc-850 rounded w-1/3" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                /* Articles List */
+                <div className="space-y-3.5 flex-grow">
+                  {news.map((art, idx) => (
+                    <a 
+                      key={idx}
+                      href={art.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()} // Let links open in a new tab without reloading
+                      className="group/item flex items-start gap-2 py-1 border-b border-white/[0.03] last:border-b-0 hover:bg-white/[0.01] transition-all"
+                    >
+                      <div className="h-1.5 w-1.5 rounded-full bg-[#10B981] mt-2 group-hover/item:scale-125 transition-transform" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-zinc-200 line-clamp-2 leading-snug group-hover/item:text-[#10B981] transition-colors">
+                          {art.title}
+                        </p>
+                        <div className="flex items-center gap-1.5 mt-1">
+                          <span className="text-[9px] font-black text-[#10B981]/75 tracking-wider uppercase">
+                            {art.source}
+                          </span>
+                          <span className="text-[9px] text-zinc-500">
+                            {art.published_at ? new Date(art.published_at).toLocaleDateString([], { month: 'short', day: 'numeric' }) : ''}
+                          </span>
+                        </div>
+                      </div>
+                      <ExternalLink className="h-3 w-3 text-zinc-500 opacity-0 group-hover/item:opacity-100 transition-opacity mt-1 flex-shrink-0" />
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="mt-3 pt-3 border-t border-white/5 flex items-center justify-between text-[10px] text-zinc-500 font-bold uppercase tracking-wider">
+              <span>Click Card to Refresh</span>
+              <span className="group-hover:text-emerald-400 transition-colors">Latest News &rarr;</span>
             </div>
           </div>
 
