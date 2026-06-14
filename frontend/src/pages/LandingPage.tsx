@@ -166,7 +166,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onAuthSuccess, onEnter
       </div>
 
       {/* Main Hero & Authentication Grid */}
-      <main className="relative z-10 max-w-7xl mx-auto w-full px-6 md:px-8 py-12 md:py-20 flex-grow flex items-center">
+      <main className="relative z-10 max-w-8xl mx-auto w-full px-8 md:px-12 py-12 md:py-20 flex-grow flex items-center">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center w-full">
           
           {/* Left Side: Brand Narrative */}
@@ -203,8 +203,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onAuthSuccess, onEnter
               />
             </div>
 
-            <p className="text-sm sm:text-base text-zinc-450 max-w-xl leading-relaxed text-left">
-              TimelineCourt removes generation bias to answer: <em>"How dominant was a player relative to his own era?"</em> Here is a guide on how to explore and use the platform's advanced mathematical tools:
+            <p className="text-sm sm:text-base text-zinc-400 max-w-xl leading-relaxed text-left">
+              <strong>TimelineCourt</strong> removes generation bias to answer: <strong><em>"How dominant was a player relative to his own era?"</em></strong> Here is a guide on how to explore and use the platform's advanced mathematical tools:
             </p>
 
             {/* Core Feature List - Left aligned vertically down the screen */}
@@ -216,8 +216,29 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onAuthSuccess, onEnter
                 </div>
                 <div className="space-y-1">
                   <h3 className="text-sm font-black text-white uppercase tracking-wider">01. Eras Projection & Translation</h3>
-                  <p className="text-xs text-zinc-500 max-w-lg leading-normal">
-                    Select a player and target decade in the **Time Machine** widget. The engine translates raw performance stats into Per-100 possessions, runs positional Z-scoring against historical cohorts, scales by Defensive Quality Index (DQI), and displays the step-by-step mathematical derivation in a holographic visualizer.
+                  <p className="text-xs text-zinc-400 max-w-lg leading-normal">
+                    Select a player and target decade in the <strong>Time Machine</strong> widget. The engine translates raw performance stats into 
+                    <span className="relative group cursor-help border-b border-dashed border-[#06B6D4] text-[#06B6D4] font-black mx-1">
+                      Per-100 possessions
+                      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-zinc-950/95 border border-zinc-800 text-[10px] text-zinc-400 font-normal normal-case rounded-xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200 shadow-2xl z-50 text-center leading-normal">
+                        Pace standardization that scales box score stats to a standard game length of 100 team possessions, removing speed-of-play bias.
+                      </span>
+                    </span>
+                    (standardizing pace), runs positional 
+                    <span className="relative group cursor-help border-b border-dashed border-[#06B6D4] text-[#06B6D4] font-black mx-1">
+                      Z-scoring
+                      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-zinc-950/95 border border-zinc-800 text-[10px] text-zinc-400 font-normal normal-case rounded-xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200 shadow-2xl z-50 text-center leading-normal">
+                        A statistical measure representing how many standard deviations a player's performance is above or below their position's average.
+                      </span>
+                    </span>
+                    (relative dominance index) against historical cohorts, scales by 
+                    <span className="relative group cursor-help border-b border-dashed border-[#06B6D4] text-[#06B6D4] font-black mx-1">
+                      Defensive Quality Index (DQI)
+                      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-zinc-950/95 border border-zinc-800 text-[10px] text-zinc-400 font-normal normal-case rounded-xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200 shadow-2xl z-50 text-center leading-normal">
+                        An era scaling factor calculated from historical league Offensive Ratings to adjust scores for defensive difficulty.
+                      </span>
+                    </span>
+                    , and displays the step-by-step mathematical derivation in a holographic visualizer.
                   </p>
                 </div>
               </div>
@@ -229,8 +250,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onAuthSuccess, onEnter
                 </div>
                 <div className="space-y-1">
                   <h3 className="text-sm font-black text-white uppercase tracking-wider">02. Neural Matchups Predictor</h3>
-                  <p className="text-xs text-zinc-500 max-w-lg leading-normal">
-                    Create matchups between cross-era teams on the **Matchups** page. Simulate outcomes using a feedforward PyTorch neural network that evaluates 12-dimensional matchup vectors to calculate win probabilities.
+                  <p className="text-xs text-zinc-400 max-w-lg leading-normal">
+                    Create matchups between cross-era teams on the <strong>Matchups</strong> page. Simulate outcomes using a feedforward 
+                    <span className="relative group cursor-help border-b border-dashed border-[#8B5CF6] text-[#8B5CF6] font-black mx-1">
+                      PyTorch
+                      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-zinc-950/95 border border-zinc-800 text-[10px] text-zinc-400 font-normal normal-case rounded-xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200 shadow-2xl z-50 text-center leading-normal">
+                        Meta's open-source machine learning framework used to construct and load our custom Win-Probability neural network.
+                      </span>
+                    </span>
+                    neural network that evaluates 12-dimensional matchup vectors to calculate win probabilities.
                   </p>
                 </div>
               </div>
@@ -242,8 +270,22 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onAuthSuccess, onEnter
                 </div>
                 <div className="space-y-1">
                   <h3 className="text-sm font-black text-white uppercase tracking-wider">03. 2D PCA Archetype Embedding</h3>
-                  <p className="text-xs text-zinc-500 max-w-lg leading-normal">
-                    Explore player similarity in the interactive **Embedding Space**. Player data is mapped into a 6-dimensional latent identity space and projected to 2D via Principal Component Analysis (PCA) to cluster players by playstyle.
+                  <p className="text-xs text-zinc-400 max-w-lg leading-normal">
+                    Explore player similarity in the interactive <strong>Embedding Space</strong>. Player data is mapped into a 6-dimensional 
+                    <span className="relative group cursor-help border-b border-dashed border-[#10B981] text-[#10B981] font-black mx-1">
+                      latent identity space
+                      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-zinc-950/95 border border-zinc-800 text-[10px] text-zinc-400 font-normal normal-case rounded-xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200 shadow-2xl z-50 text-center leading-normal">
+                        A 6-dimensional compression bottleneck containing playstyle representation vectors discovered by our neural network.
+                      </span>
+                    </span>
+                    and projected to 2D via 
+                    <span className="relative group cursor-help border-b border-dashed border-[#10B981] text-[#10B981] font-black mx-1">
+                      Principal Component Analysis (PCA)
+                      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-zinc-950/95 border border-zinc-800 text-[10px] text-zinc-400 font-normal normal-case rounded-xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200 shadow-2xl z-50 text-center leading-normal">
+                        A dimensionality reduction algorithm that projects high-dimensional data onto 2-dimensional axes for visual cluster plots.
+                      </span>
+                    </span>
+                    to cluster players by playstyle.
                   </p>
                 </div>
               </div>
@@ -268,7 +310,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onAuthSuccess, onEnter
                   ⚠️ Registration Required
                 </div>
                 <p className="text-xs text-zinc-500">
-                  {isRegister ? 'You must create an Analyst Profile to save rosters, simulate matchups, and run AI reports.' : 'Enter your registered credentials to launch the simulator.'}
+                  <strong>{isRegister ? 'You must create an Analyst Profile to save rosters, simulate matchups, and run AI reports.' : 'Enter your registered credentials to launch the simulator.'}</strong>
                 </p>
               </div>
 
