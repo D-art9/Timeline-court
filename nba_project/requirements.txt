@@ -11,7 +11,7 @@ tzdata==2026.2
 django-cors-headers==4.7.0
 djangorestframework-simplejwt==5.5.0
 gunicorn==23.0.0
-torch==2.6.0
+torch==2.10.0
 requests==2.32.3
 PyJWT==2.10.1
 
