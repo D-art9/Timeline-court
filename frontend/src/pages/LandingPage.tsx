@@ -208,33 +208,33 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onAuthSuccess, onEnter
             </p>
 
             {/* Core Feature List - Left aligned vertically down the screen */}
-            <div className="space-y-6 pt-6 text-left w-full">
+            <div className="space-y-8 pt-6 text-left w-full">
               {/* Feature 1: Historical Eras Projection (How-To) */}
               <div className="flex items-start gap-4 hover:translate-x-1 transition-transform duration-300">
-                <div className="h-9 w-9 rounded-xl bg-brand-blue/10 border border-brand-blue/20 flex items-center justify-center text-brand-blue shrink-0 mt-0.5">
-                  <TrendingUp className="h-4 w-4" />
+                <div className="h-11 w-11 rounded-xl bg-brand-blue/10 border border-brand-blue/20 flex items-center justify-center text-brand-blue shrink-0 mt-0.5">
+                  <TrendingUp className="h-5 w-5" />
                 </div>
-                <div className="space-y-1">
-                  <h3 className="text-sm font-black text-white uppercase tracking-wider">01. Eras Projection & Translation</h3>
-                  <p className="text-xs text-zinc-400 max-w-lg leading-normal">
+                <div className="space-y-1 w-full">
+                  <h3 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">01. Eras Projection & Translation</h3>
+                  <p className="text-sm sm:text-base text-zinc-300 font-semibold leading-relaxed w-full max-w-4xl">
                     Select a player and target decade in the <strong>Time Machine</strong> widget. The engine translates raw performance stats into 
                     <span className="relative group cursor-help border-b border-dashed border-[#06B6D4] text-[#06B6D4] font-black mx-1">
                       Per-100 possessions
-                      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-zinc-950/95 border border-zinc-800 text-[10px] text-zinc-400 font-normal normal-case rounded-xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200 shadow-2xl z-50 text-center leading-normal">
+                      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-80 p-3 bg-zinc-950/95 border border-zinc-800 text-xs text-zinc-300 font-semibold normal-case rounded-xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200 shadow-2xl z-50 text-center leading-normal">
                         Pace standardization that scales box score stats to a standard game length of 100 team possessions, removing speed-of-play bias.
                       </span>
                     </span>
                     (standardizing pace), runs positional 
                     <span className="relative group cursor-help border-b border-dashed border-[#06B6D4] text-[#06B6D4] font-black mx-1">
                       Z-scoring
-                      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-zinc-950/95 border border-zinc-800 text-[10px] text-zinc-400 font-normal normal-case rounded-xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200 shadow-2xl z-50 text-center leading-normal">
+                      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-80 p-3 bg-zinc-950/95 border border-zinc-800 text-xs text-zinc-300 font-semibold normal-case rounded-xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200 shadow-2xl z-50 text-center leading-normal">
                         A statistical measure representing how many standard deviations a player's performance is above or below their position's average.
                       </span>
                     </span>
                     (relative dominance index) against historical cohorts, scales by 
                     <span className="relative group cursor-help border-b border-dashed border-[#06B6D4] text-[#06B6D4] font-black mx-1">
                       Defensive Quality Index (DQI)
-                      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-zinc-950/95 border border-zinc-800 text-[10px] text-zinc-400 font-normal normal-case rounded-xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200 shadow-2xl z-50 text-center leading-normal">
+                      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-80 p-3 bg-zinc-950/95 border border-zinc-800 text-xs text-zinc-300 font-semibold normal-case rounded-xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200 shadow-2xl z-50 text-center leading-normal">
                         An era scaling factor calculated from historical league Offensive Ratings to adjust scores for defensive difficulty.
                       </span>
                     </span>
@@ -245,16 +245,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onAuthSuccess, onEnter
 
               {/* Feature 2: Neural ML Engine */}
               <div className="flex items-start gap-4 hover:translate-x-1 transition-transform duration-300">
-                <div className="h-9 w-9 rounded-xl bg-brand-purple/10 border border-brand-purple/20 flex items-center justify-center text-brand-purple shrink-0 mt-0.5">
-                  <Cpu className="h-4 w-4" />
+                <div className="h-11 w-11 rounded-xl bg-brand-purple/10 border border-brand-purple/20 flex items-center justify-center text-brand-purple shrink-0 mt-0.5">
+                  <Cpu className="h-5 w-5" />
                 </div>
-                <div className="space-y-1">
-                  <h3 className="text-sm font-black text-white uppercase tracking-wider">02. Neural Matchups Predictor</h3>
-                  <p className="text-xs text-zinc-400 max-w-lg leading-normal">
+                <div className="space-y-1 w-full">
+                  <h3 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">02. Neural Matchups Predictor</h3>
+                  <p className="text-sm sm:text-base text-zinc-300 font-semibold leading-relaxed w-full max-w-4xl">
                     Create matchups between cross-era teams on the <strong>Matchups</strong> page. Simulate outcomes using a feedforward 
                     <span className="relative group cursor-help border-b border-dashed border-[#8B5CF6] text-[#8B5CF6] font-black mx-1">
                       PyTorch
-                      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-zinc-950/95 border border-zinc-800 text-[10px] text-zinc-400 font-normal normal-case rounded-xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200 shadow-2xl z-50 text-center leading-normal">
+                      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-80 p-3 bg-zinc-950/95 border border-zinc-800 text-xs text-zinc-300 font-semibold normal-case rounded-xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200 shadow-2xl z-50 text-center leading-normal">
                         Meta's open-source machine learning framework used to construct and load our custom Win-Probability neural network.
                       </span>
                     </span>
@@ -265,23 +265,23 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onAuthSuccess, onEnter
 
               {/* Feature 3: PCA Similarity Visualizations */}
               <div className="flex items-start gap-4 hover:translate-x-1 transition-transform duration-300">
-                <div className="h-9 w-9 rounded-xl bg-brand-green/10 border border-brand-green/20 flex items-center justify-center text-brand-green shrink-0 mt-0.5">
-                  <Wrench className="h-4 w-4" />
+                <div className="h-11 w-11 rounded-xl bg-brand-green/10 border border-brand-green/20 flex items-center justify-center text-brand-green shrink-0 mt-0.5">
+                  <Wrench className="h-5 w-5" />
                 </div>
-                <div className="space-y-1">
-                  <h3 className="text-sm font-black text-white uppercase tracking-wider">03. 2D PCA Archetype Embedding</h3>
-                  <p className="text-xs text-zinc-400 max-w-lg leading-normal">
+                <div className="space-y-1 w-full">
+                  <h3 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">03. 2D PCA Archetype Embedding</h3>
+                  <p className="text-sm sm:text-base text-zinc-300 font-semibold leading-relaxed w-full max-w-4xl">
                     Explore player similarity in the interactive <strong>Embedding Space</strong>. Player data is mapped into a 6-dimensional 
                     <span className="relative group cursor-help border-b border-dashed border-[#10B981] text-[#10B981] font-black mx-1">
                       latent identity space
-                      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-zinc-950/95 border border-zinc-800 text-[10px] text-zinc-400 font-normal normal-case rounded-xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200 shadow-2xl z-50 text-center leading-normal">
+                      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-80 p-3 bg-zinc-950/95 border border-zinc-800 text-xs text-zinc-300 font-semibold normal-case rounded-xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200 shadow-2xl z-50 text-center leading-normal">
                         A 6-dimensional compression bottleneck containing playstyle representation vectors discovered by our neural network.
                       </span>
                     </span>
                     and projected to 2D via 
                     <span className="relative group cursor-help border-b border-dashed border-[#10B981] text-[#10B981] font-black mx-1">
                       Principal Component Analysis (PCA)
-                      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-zinc-950/95 border border-zinc-800 text-[10px] text-zinc-400 font-normal normal-case rounded-xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200 shadow-2xl z-50 text-center leading-normal">
+                      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-80 p-3 bg-zinc-950/95 border border-zinc-800 text-xs text-zinc-300 font-semibold normal-case rounded-xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200 shadow-2xl z-50 text-center leading-normal">
                         A dimensionality reduction algorithm that projects high-dimensional data onto 2-dimensional axes for visual cluster plots.
                       </span>
                     </span>
