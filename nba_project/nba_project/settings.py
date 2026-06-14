@@ -66,6 +66,8 @@ MIDDLEWARE = [
 
 CORS_ALLOW_ALL_ORIGINS = os.environ.get('CORS_ALLOW_ALL_ORIGINS', 'False').lower() in ['true', '1', 't', 'y', 'yes']
 CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'https://timeline-court.vercel.app,http://localhost:3000,http://localhost:5173').split(',')
+CORS_ALLOW_CREDENTIALS = True
+
 
 
 
