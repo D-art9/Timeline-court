@@ -203,39 +203,48 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onAuthSuccess, onEnter
               />
             </div>
 
-            <p className="text-sm sm:text-base text-zinc-450 max-w-xl leading-relaxed">
-              TimelineCourt removes generation bias to answer <em>"How dominant was a player relative to his own era?"</em> Compare 2000s post-up physical metrics against modern space-and-pace three-point distribution with real Z-score adjustments.
+            <p className="text-sm sm:text-base text-zinc-450 max-w-xl leading-relaxed text-left">
+              TimelineCourt removes generation bias to answer: <em>"How dominant was a player relative to his own era?"</em> Here is a guide on how to explore and use the platform's advanced mathematical tools:
             </p>
 
-            {/* Core Feature List - Left aligned vertically down the screen (No Cards) */}
+            {/* Core Feature List - Left aligned vertically down the screen */}
             <div className="space-y-6 pt-6 text-left w-full">
+              {/* Feature 1: Historical Eras Projection (How-To) */}
               <div className="flex items-start gap-4 hover:translate-x-1 transition-transform duration-300">
                 <div className="h-9 w-9 rounded-xl bg-brand-blue/10 border border-brand-blue/20 flex items-center justify-center text-brand-blue shrink-0 mt-0.5">
                   <TrendingUp className="h-4 w-4" />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-sm font-black text-white uppercase tracking-wider">Era Translation</h3>
-                  <p className="text-xs text-zinc-500 max-w-lg leading-normal">Pace-adjust historical stats into target era baselines automatically.</p>
+                  <h3 className="text-sm font-black text-white uppercase tracking-wider">01. Eras Projection & Translation</h3>
+                  <p className="text-xs text-zinc-500 max-w-lg leading-normal">
+                    Select a player and target decade in the **Time Machine** widget. The engine translates raw performance stats into Per-100 possessions, runs positional Z-scoring against historical cohorts, scales by Defensive Quality Index (DQI), and displays the step-by-step mathematical derivation in a holographic visualizer.
+                  </p>
                 </div>
               </div>
 
+              {/* Feature 2: Neural ML Engine */}
               <div className="flex items-start gap-4 hover:translate-x-1 transition-transform duration-300">
                 <div className="h-9 w-9 rounded-xl bg-brand-purple/10 border border-brand-purple/20 flex items-center justify-center text-brand-purple shrink-0 mt-0.5">
                   <Cpu className="h-4 w-4" />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-sm font-black text-white uppercase tracking-wider">Neural Matchups</h3>
-                  <p className="text-xs text-zinc-500 max-w-lg leading-normal">Simulate matchups using statistical modeling and neural-net calculations.</p>
+                  <h3 className="text-sm font-black text-white uppercase tracking-wider">02. Neural Matchups Predictor</h3>
+                  <p className="text-xs text-zinc-500 max-w-lg leading-normal">
+                    Create matchups between cross-era teams on the **Matchups** page. Simulate outcomes using a feedforward PyTorch neural network that evaluates 12-dimensional matchup vectors to calculate win probabilities.
+                  </p>
                 </div>
               </div>
 
+              {/* Feature 3: PCA Similarity Visualizations */}
               <div className="flex items-start gap-4 hover:translate-x-1 transition-transform duration-300">
                 <div className="h-9 w-9 rounded-xl bg-brand-green/10 border border-brand-green/20 flex items-center justify-center text-brand-green shrink-0 mt-0.5">
                   <Wrench className="h-4 w-4" />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-sm font-black text-white uppercase tracking-wider">Lineup Synergy</h3>
-                  <p className="text-xs text-zinc-500 max-w-lg leading-normal">Assemble custom cross-era squads on an interactive court builder.</p>
+                  <h3 className="text-sm font-black text-white uppercase tracking-wider">03. 2D PCA Archetype Embedding</h3>
+                  <p className="text-xs text-zinc-500 max-w-lg leading-normal">
+                    Explore player similarity in the interactive **Embedding Space**. Player data is mapped into a 6-dimensional latent identity space and projected to 2D via Principal Component Analysis (PCA) to cluster players by playstyle.
+                  </p>
                 </div>
               </div>
             </div>
@@ -255,8 +264,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onAuthSuccess, onEnter
                 <h2 className="text-xl font-black text-white uppercase tracking-tight">
                   {isRegister ? 'Register Analyst Profile' : 'Access Platform'}
                 </h2>
+                <div className="px-3 py-1.5 rounded-xl bg-red-950/20 border border-red-900/40 text-[10px] font-bold text-red-400 uppercase tracking-wider animate-pulse inline-block mx-auto">
+                  ⚠️ Registration Required
+                </div>
                 <p className="text-xs text-zinc-500">
-                  {isRegister ? 'Create profile to enable simulated matchups & squad saves' : 'Enter credentials to open simulation matrix'}
+                  {isRegister ? 'You must create an Analyst Profile to save rosters, simulate matchups, and run AI reports.' : 'Enter your registered credentials to launch the simulator.'}
                 </p>
               </div>
 
