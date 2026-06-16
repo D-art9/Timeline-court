@@ -183,9 +183,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onAuthSuccess, onEnter
                 <h2 className="text-xl font-black text-white uppercase tracking-tight">
                   {isRegister ? 'Register Analyst Profile' : 'Access Platform'}
                 </h2>
-                <div className="px-3 py-1.5 rounded-xl bg-red-950/20 border border-red-900/40 text-[10px] font-bold text-red-400 uppercase tracking-wider animate-pulse inline-block mx-auto">
-                  ⚠️ Registration Required
-                </div>
                 <p className="text-xs text-zinc-500">
                   <strong>{isRegister ? 'You must create an Analyst Profile to save rosters, simulate matchups, and run AI reports.' : 'Enter your registered credentials to launch the simulator.'}</strong>
                 </p>
@@ -249,6 +246,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onAuthSuccess, onEnter
                   className="w-full py-3.5 rounded-xl bg-white hover:bg-zinc-200 text-black font-bold text-xs uppercase tracking-wider transition-colors shadow-lg disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {isLoading ? 'Processing...' : isRegister ? 'Create Profile & Enter' : 'Authenticate & Enter'}
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={onEnterAsGuest}
+                  className="w-full py-3.5 rounded-xl bg-zinc-900 hover:bg-zinc-850 border border-white/5 text-zinc-400 hover:text-white font-bold text-xs uppercase tracking-wider transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer mt-2"
+                >
+                  <span>Bypass Login / Enter as Guest</span>
                   <ArrowRight className="h-3.5 w-3.5" />
                 </button>
               </form>
