@@ -49,7 +49,24 @@ function App() {
 
   useEffect(() => {
     fetchProfile();
+
+    // Auto-ping Render backend every 5 minutes to keep it awake
+    const backendUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+    
+    // Kickstart backend wake-up immediately on load
+    fetch(`${backendUrl}/api/players/`)
+      .catch(() => console.log('Wake-up ping initiated.'));
+
+    // Interval to ping every 5 minutes (300,000 ms)
+    const pingInterval = setInterval(() => {
+      fetch(`${backendUrl}/api/players/`)
+        .then(() => console.log('Keep-alive ping successful.'))
+        .catch(err => console.warn('Keep-alive ping failed.', err));
+    }, 300000);
+
+    return () => clearInterval(pingInterval);
   }, []);
+
 
   const handleSetActiveTab = (tab: string) => {
     setActiveTab(tab);
