@@ -34,6 +34,150 @@ const PRESET_TEAMS: SavedTeam[] = [
   }
 ];
 
+const generatePlayByPlay = (
+  teamAName: string,
+  teamBName: string,
+  rosterA: any[],
+  rosterB: any[],
+  winner: string,
+  scoreA: number,
+  scoreB: number,
+  mvpName: string
+): string[] => {
+  const centerA = rosterA.find(p => p.position === 'C')?.name || 'Center A';
+  const centerB = rosterB.find(p => p.position === 'C')?.name || 'Center B';
+  const pgA = rosterA.find(p => p.position === 'PG')?.name || 'Guard A';
+  const pgB = rosterB.find(p => p.position === 'PG')?.name || 'Guard B';
+  const scorerA = rosterA.find(p => p.position === 'SG' || p.position === 'SF')?.name || rosterA[0]?.name || 'Scorer A';
+  const scorerB = rosterB.find(p => p.position === 'SG' || p.position === 'SF')?.name || rosterB[0]?.name || 'Scorer B';
+
+  const clutchScoreA = Math.round(scoreA * 0.9);
+  const clutchScoreB = Math.round(scoreB * 0.9);
+
+  return [
+    `[Q1 12:00] Tip-off won by ${centerA} over ${centerB}...`,
+    `[Q1 08:34] ${pgA} assists ${scorerA} for a fastbreak layup.`,
+    `[Q2 04:12] Block! ${centerB} denies ${scorerA} at the rim.`,
+    `[Q3 09:15] MVP Run: ${mvpName} hits 3 consecutive shots!`,
+    `[Q4 02:40] Clutch! ${pgB} hits a deep three. Score: ${clutchScoreA} - ${clutchScoreB}.`,
+    `[Q4 00:00] Final Buzzer! ${winner} wins the matchup. Final Score: ${scoreA} - ${scoreB}.`
+  ];
+};
+
+const positionCoordinates: Record<string, { top: string; left: string }> = {
+  PG: { top: '80%', left: '50%' },
+  SG: { top: '60%', left: '25%' },
+  SF: { top: '60%', left: '75%' },
+  PF: { top: '35%', left: '30%' },
+  C: { top: '25%', left: '50%' }
+};
+
+const CourtMarkings = ({ color }: { color: string }) => (
+  <div className="absolute inset-0 pointer-events-none opacity-25">
+    {/* Outlines */}
+    <div className="absolute inset-0 border-2 rounded-2xl" style={{ borderColor: color }} />
+    {/* Center Line at bottom */}
+    <div className="absolute bottom-0 left-0 right-0 border-b-2" style={{ borderColor: color }} />
+    {/* Free Throw Key */}
+    <div className="absolute top-0 left-[30%] right-[30%] h-[35%] border-b-2 border-x-2" style={{ borderColor: color }}>
+      <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full border-2" style={{ borderColor: color }} />
+    </div>
+    {/* 3-Point Arc */}
+    <div className="absolute top-0 left-[10%] right-[10%] bottom-[20%] rounded-b-full border-b-2 border-x-2" style={{ borderColor: color, borderTop: 'none' }} />
+  </div>
+);
+
+const Hoop = ({ color, transformStyle }: { color: string; transformStyle: string }) => (
+  <div 
+    className="absolute top-2 left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none origin-bottom" 
+    style={{ transform: transformStyle }}
+  >
+    <div className="w-1 h-12 bg-zinc-800 border-r border-zinc-700" />
+    <div className="w-14 h-10 bg-white/10 border-2 rounded flex items-center justify-center relative backdrop-blur-sm shadow-lg" style={{ borderColor: color }}>
+      <div className="w-5 h-4 border absolute bottom-1.5" style={{ borderColor: color }} />
+      <div className="absolute bottom-0.5 w-4 h-4 rounded-full border border-orange-500 origin-center" style={{ transform: 'rotateX(90deg)' }}>
+        <div className="w-full h-4 border border-white/20 border-dashed rounded-b-full opacity-60 translate-y-0.5" />
+      </div>
+    </div>
+  </div>
+);
+
+const PlayerNode = ({ 
+  player, 
+  position, 
+  color, 
+  transformStyle, 
+  onClick 
+}: { 
+  player: Player | null; 
+  position: string; 
+  color: string; 
+  transformStyle: string; 
+  onClick: () => void 
+}) => {
+  const headshotUrl = player 
+    ? `https://cdn.nba.com/headshots/nba/latest/1040x760/${player.id.split('-')[0]}.png`
+    : '';
+
+  return (
+    <div 
+      onClick={onClick}
+      className={`absolute flex flex-col items-center cursor-pointer transition-all duration-300 group`}
+      style={{
+        top: positionCoordinates[position].top,
+        left: positionCoordinates[position].left,
+        transform: 'translateX(-50%) translateY(-50%)',
+        transformStyle: 'preserve-3d'
+      }}
+    >
+      <div 
+        className="w-10 h-4 rounded-full blur-[3px] absolute bottom-0 -translate-y-1 opacity-70 transition-transform group-hover:scale-125" 
+        style={{ backgroundColor: color }}
+      />
+      
+      <div 
+        className="flex flex-col items-center transition-transform duration-300 group-hover:scale-110 origin-bottom"
+        style={{ transform: transformStyle }}
+      >
+        <div className="relative flex flex-col items-center">
+          <span 
+            className="px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wider text-black mb-1 z-10"
+            style={{ backgroundColor: color }}
+          >
+            {position}
+          </span>
+          
+          <div className="h-12 w-12 rounded-full border-2 bg-zinc-950/90 flex items-center justify-center overflow-hidden shadow-2xl relative" style={{ borderColor: color }}>
+            {player ? (
+              <>
+                <img
+                  src={headshotUrl}
+                  alt={player.name}
+                  className="h-14 w-14 object-cover object-top translate-y-1.5 scale-125 transition-transform"
+                  onError={(e) => {
+                    (e.target as HTMLElement).style.display = 'none';
+                  }}
+                />
+                <span className="absolute font-black text-zinc-700 text-[10px] tracking-tighter uppercase pointer-events-none select-none z-[-1]">
+                  {player.name.split(' ').map(n => n[0]).join('')}
+                </span>
+              </>
+            ) : (
+              <span className="text-[8px] text-zinc-650 font-bold uppercase tracking-wider">Empty</span>
+            )}
+          </div>
+          
+          {player && (
+            <div className="mt-1 px-1.5 py-0.5 rounded bg-black/90 border border-white/5 shadow-md max-w-[65px] truncate text-center">
+              <span className="text-[7px] font-bold text-white block truncate">{player.name}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const MatchupsPage: React.FC = () => {
   const [userTeams, setUserTeams] = useState<SavedTeam[]>([]);
   const [teamA, setTeamA] = useState<SavedTeam | null>(PRESET_TEAMS[0]);
@@ -55,6 +199,8 @@ export const MatchupsPage: React.FC = () => {
 
   const [activeSelectionPanel, setActiveSelectionPanel] = useState<'A' | 'B' | null>(null);
   const [inspectPlayer, setInspectPlayer] = useState<Player | null>(null);
+  const [visibleCommentary, setVisibleCommentary] = useState<string[]>([]);
+
 
   const loadData = async () => {
     try {
@@ -107,6 +253,8 @@ export const MatchupsPage: React.FC = () => {
     setSimProgress(0);
     setFlipResult(false);
     setSimResult(null);
+    setVisibleCommentary([]);
+
 
     const interval = setInterval(() => {
       setSimProgress(prev => {
@@ -141,26 +289,48 @@ export const MatchupsPage: React.FC = () => {
         if (found) mvpObj = found;
       }
 
-      setSimResult({
-        winner: winnerName,
-        loser: loserName,
-        scoreA: res.score_a,
-        scoreB: res.score_b,
-        probability: isAWinner ? (res.probability_a || 58) : (res.probability_b || 42),
-        mvp: mvpObj,
-        log: [
-          `Tip-off won by ${winnerName}.`,
-          `Positional Battles: Matchup system run with ${engineMode} matrix.`,
-          ...res.position_battles.map((b: any) => `Position: ${b.position} winner: ${b.winner} (${b.details})`),
-          `Final Score: ${teamA!.name} ${res.score_a} - ${teamB!.name} ${res.score_b}.`
-        ],
-        positionBattles: res.position_battles
-      });
+      // Generate Play-By-Play Commentary
+      const rosterA = Object.values(teamA!.roster).filter(Boolean) as Player[];
+      const rosterB = Object.values(teamB!.roster).filter(Boolean) as Player[];
+      const commentary = generatePlayByPlay(
+        teamA!.name,
+        teamB!.name,
+        rosterA,
+        rosterB,
+        winnerName,
+        res.score_a,
+        res.score_b,
+        mvpObj.name
+      );
 
-      // Trigger flip reveal animation delay
-      setTimeout(() => {
-        setFlipResult(true);
-      }, 300);
+      // Reveal commentary line-by-line
+      let lineIdx = 0;
+      const revealInterval = setInterval(() => {
+        if (lineIdx < commentary.length) {
+          setVisibleCommentary(prev => [...prev, commentary[lineIdx]]);
+          lineIdx++;
+        } else {
+          clearInterval(revealInterval);
+          
+          setSimResult({
+            winner: winnerName,
+            loser: loserName,
+            scoreA: res.score_a,
+            scoreB: res.score_b,
+            probability: isAWinner ? (res.probability_a || 58) : (res.probability_b || 42),
+            mvp: mvpObj,
+            log: commentary,
+            positionBattles: res.position_battles
+          });
+
+          // Trigger flip reveal animation delay
+          setTimeout(() => {
+            setFlipResult(true);
+          }, 300);
+
+          setIsSimulating(false);
+        }
+      }, 850);
 
       // Save record
       const simulationRecord = {
@@ -185,7 +355,6 @@ export const MatchupsPage: React.FC = () => {
     } catch (e) {
       console.error(e);
       alert('Error connecting simulation API.');
-    } finally {
       setIsSimulating(false);
     }
   };
@@ -218,251 +387,309 @@ export const MatchupsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Asymmetrical Cockpit Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
-        {/* Team Alpha (Left Roster Card) */}
-        <div className="lg:col-span-4 rounded-3xl border border-[#06B6D4]/15 bg-[#0B0F19]/40 backdrop-blur-xl p-5 space-y-6 shadow-[0_0_50px_rgba(6,182,212,0.02)]">
-          <div className="pb-3 border-b border-[#06B6D4]/15">
-            <span className="text-[9px] uppercase tracking-widest text-[#06B6D4] font-black">Roster Alpha</span>
-            <h3 className="text-lg font-black text-white truncate">{teamA ? teamA.name : 'Select Team A'}</h3>
+      {/* 3D double court arena with suspended Jumbotron */}
+      <div 
+        className="relative w-full min-h-[720px] rounded-3xl border border-white/5 bg-[#080d1a]/20 backdrop-blur-xl overflow-hidden p-6 flex flex-col justify-between"
+        style={{ perspective: '1200px', transformStyle: 'preserve-3d' }}
+      >
+        {/* Top Header inside Arena */}
+        <div className="flex justify-between items-center z-10 w-full mb-4">
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] uppercase tracking-widest text-[#06B6D4] font-black">Team Alpha</span>
+            <h3 className="text-xl font-black text-white truncate max-w-[200px]">{teamA ? teamA.name : 'Select Team A'}</h3>
+            <button 
+              onClick={() => setActiveSelectionPanel('A')}
+              className="text-[9px] text-[#06B6D4] font-bold uppercase tracking-wider hover:text-white mt-1 border border-[#06B6D4]/30 px-2 py-1 rounded-lg bg-[#06B6D4]/5 transition-all text-left w-fit cursor-pointer"
+            >
+              Change Team
+            </button>
           </div>
+          
+          <div className="flex flex-col items-end gap-1">
+            <span className="text-[10px] uppercase tracking-widest text-[#F59E0B] font-black">Team Beta</span>
+            <h3 className="text-xl font-black text-white truncate max-w-[200px] text-right">{teamB ? teamB.name : 'Select Team B'}</h3>
+            <button 
+              onClick={() => setActiveSelectionPanel('B')}
+              className="text-[9px] text-[#F59E0B] font-bold uppercase tracking-wider hover:text-white mt-1 border border-[#F59E0B]/30 px-2 py-1 rounded-lg bg-[#F59E0B]/5 transition-all text-right w-fit cursor-pointer"
+            >
+              Change Team
+            </button>
+          </div>
+        </div>
 
-          <div className="space-y-4">
-            {teamA && Object.entries(teamA.roster).map(([pos, player]) => (
-              <div
+        {/* 3D Scene Viewport */}
+        <div className="relative flex-grow flex items-center justify-between w-full h-[540px] overflow-visible" style={{ transformStyle: 'preserve-3d' }}>
+          {/* Team Alpha Tilted Court */}
+          <div 
+            className="absolute left-[1%] w-[42%] h-[380px] rounded-3xl transition-all duration-700"
+            style={{
+              transform: 'rotateX(55deg) rotateY(12deg) translateZ(0px)',
+              transformStyle: 'preserve-3d',
+              background: 'radial-gradient(circle at center, #0e172a 0%, #030712 100%)',
+              border: '1px solid rgba(6, 182, 212, 0.15)',
+              boxShadow: '0 25px 60px rgba(6, 182, 212, 0.04)'
+            }}
+          >
+            <CourtMarkings color="#06B6D4" />
+            <Hoop color="#06B6D4" transformStyle="rotateX(-55deg) rotateY(-12deg)" />
+            {Object.entries(teamA?.roster || { PG: null, SG: null, SF: null, PF: null, C: null }).map(([pos, player]) => (
+              <PlayerNode
                 key={pos}
+                player={player}
+                position={pos}
+                color="#06B6D4"
+                transformStyle="rotateX(-55deg) rotateY(-12deg)"
                 onClick={() => player && setInspectPlayer(player)}
-                className={`p-3.5 rounded-2xl bg-zinc-950/40 border border-zinc-900/60 hover:border-[#06B6D4]/30 hover:bg-zinc-900/40 transition-all space-y-3 ${player ? 'cursor-pointer' : ''}`}
-              >
-                <div className="flex justify-between items-center pb-2 border-b border-zinc-900">
-                  <span className="text-xs font-black text-[#06B6D4] uppercase">{pos}</span>
-                  <span className="text-xs font-bold text-white truncate max-w-[130px] group-hover:text-[#06B6D4]">{player ? player.name : 'Empty Slot'}</span>
-                </div>
-
-                {player ? (
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-                    {renderHorizontalStatBar('PPG', player.ppg, 35, 'bg-gradient-to-r from-[#06B6D4] to-cyan-600')}
-                    {renderHorizontalStatBar('RPG', player.rpg, 25, 'bg-gradient-to-r from-[#06B6D4] to-cyan-600')}
-                    {renderHorizontalStatBar('APG', player.apg, 15, 'bg-gradient-to-r from-[#06B6D4] to-cyan-600')}
-                    {renderHorizontalStatBar('TS%', player.ts, 100, 'bg-gradient-to-r from-[#06B6D4] to-cyan-600')}
-                  </div>
-                ) : (
-                  <p className="text-[10px] text-zinc-650 italic">No player assigned to this position</p>
-                )}
-              </div>
+              />
             ))}
           </div>
 
-          <button
-            onClick={() => setActiveSelectionPanel('A')}
-            className="w-full py-3.5 rounded-xl border border-[#06B6D4]/20 hover:border-[#06B6D4]/50 bg-zinc-950/60 hover:bg-zinc-950 text-xs font-bold text-zinc-300 hover:text-white transition-all cursor-pointer uppercase tracking-wider"
+          {/* Suspended Jumbotron Console */}
+          <div 
+            className="absolute left-[33%] right-[33%] z-30 flex flex-col justify-center items-center h-[420px]"
           >
-            Change Team Alpha
-          </button>
-        </div>
-
-        {/* Central Orbital Control Deck */}
-        <div className="lg:col-span-4 flex flex-col items-center justify-center space-y-6">
-          <div className="bg-[#0B0F19]/85 border border-white/5 rounded-3xl p-6 w-full backdrop-blur-md space-y-6 text-center relative overflow-hidden shadow-2xl">
-            <div className="absolute inset-0 bg-[radial-gradient(#8B5CF6_0.5px,transparent_0.5px)] bg-[size:16px_16px] opacity-10 pointer-events-none" />
-
-            {/* Toggle switch between engine types */}
-            <div className="space-y-2">
-              <span className="text-[9px] uppercase tracking-widest text-zinc-500 font-bold block">Engine Model</span>
-              <div className="flex bg-zinc-950 border border-zinc-900 p-1 rounded-2xl w-full max-w-[280px] mx-auto">
-                <button
-                  onClick={() => setEngineMode('statistical')}
-                  className={`flex-1 text-center py-2 text-[10px] font-black uppercase rounded-xl transition-all cursor-pointer ${
-                    engineMode === 'statistical'
-                      ? 'bg-zinc-900 text-white shadow-inner border border-zinc-800'
-                      : 'text-zinc-500 hover:text-zinc-300'
-                  }`}
-                >
-                  Stat Matrix
-                </button>
-                <button
-                  onClick={() => setEngineMode('ml')}
-                  className={`flex-1 text-center py-2 text-[10px] font-black uppercase rounded-xl transition-all cursor-pointer ${
-                    engineMode === 'ml'
-                      ? 'bg-[#8B5CF6]/15 border border-[#8B5CF6]/30 text-[#8B5CF6]'
-                      : 'text-zinc-500 hover:text-zinc-300'
-                  }`}
-                >
-                  Neural ML
-                </button>
-              </div>
-            </div>
-
-            {/* Circular Orbit Button */}
-            <div className="relative flex justify-center items-center h-44 w-44 mx-auto my-4 group animate-pulse-slow">
-              {/* Spinning neon hover ring */}
-              <div className="absolute inset-0 rounded-full border border-dashed border-[#8B5CF6]/20 group-hover:border-[#8B5CF6]/80 group-hover:animate-spin" style={{ animationDuration: '16s' }} />
-              <div className="absolute inset-2 rounded-full border border-dashed border-[#06B6D4]/20 group-hover:border-[#06B6D4]/80 group-hover:animate-spin" style={{ animationDuration: '8s', animationDirection: 'reverse' }} />
-
-              <button
-                onClick={runSimulation}
-                disabled={isSimulating}
-                className="absolute inset-5 rounded-full bg-black/80 border border-white/5 hover:border-white/20 text-white hover:text-[#06B6D4] transition-all flex flex-col items-center justify-center gap-1 shadow-2xl cursor-pointer disabled:opacity-50"
-              >
-                <Swords className="h-6 w-6 text-zinc-400 group-hover:scale-115 transition-transform" />
-                <span className="text-[10px] font-black uppercase tracking-widest mt-1">Simulate</span>
-              </button>
-            </div>
-
-            {/* Active Simulation Loading Ticks */}
-            {isSimulating && (
-              <div className="space-y-2 py-2 animate-pulse">
-                <span className="text-[9px] text-[#06B6D4] font-black uppercase tracking-widest">Orbital Compute: {simProgress}%</span>
-                <div className="w-full max-w-[180px] bg-zinc-950 border border-zinc-900 h-1.5 rounded-full overflow-hidden mx-auto">
-                  <div className="bg-gradient-to-r from-[#06B6D4] to-[#8B5CF6] h-full transition-all duration-150" style={{ width: `${simProgress}%` }} />
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Simulation Flip Reveal Outcome Panel */}
-          <div className="w-full perspective-[1000px]">
-            {simResult && (
+            <div className="relative w-full h-full" style={{ perspective: '1000px', transformStyle: 'preserve-3d' }}>
               <div 
-                className={`w-full bg-[#0F1424]/90 border border-white/[0.03] rounded-3xl p-5 backdrop-blur-xl space-y-6 transition-all duration-700 transform shadow-2xl ${
-                  flipResult ? 'rotateY-0 scale-100 opacity-100' : 'rotateY-90 scale-95 opacity-0 pointer-events-none'
-                }`}
+                className="w-full h-full relative"
+                style={{ 
+                  transform: flipResult ? 'rotateY(180deg)' : 'rotateY(0deg)',
+                  transformStyle: 'preserve-3d',
+                  transition: 'transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+                }}
               >
-                {/* 1. Double-gauge radial progress chart (win probabilities) */}
-                <div className="text-center space-y-4">
-                  <span className="text-[9px] text-zinc-550 font-bold uppercase tracking-widest block">Probability Matrix</span>
-                  
-                  {/* Gauge Drawing in SVG */}
-                  <div className="relative h-24 w-44 mx-auto flex items-center justify-center">
-                    <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 50">
-                      {/* Arc Base */}
-                      <path d="M 10 45 A 40 40 0 0 1 90 45" fill="none" stroke="#27272a" strokeWidth="6" strokeLinecap="round" />
-                      {/* Team A (Cyan) Progress Arc */}
-                      <path 
-                        d="M 10 45 A 40 40 0 0 1 90 45" 
-                        fill="none" 
-                        stroke="#06B6D4" 
-                        strokeWidth="6" 
-                        strokeLinecap="round" 
-                        strokeDasharray="125"
-                        strokeDashoffset={125 - (125 * (simResult.probability / 100))}
-                        className="transition-all duration-1000"
-                      />
-                    </svg>
-                    <div className="text-center z-10 pt-4">
-                      <span className="text-2xl font-black text-white leading-none">{simResult.probability}%</span>
-                      {/* Win Share renamed to basketball-centric COURT EFFICIENCY */}
-                      <p className="text-[9px] text-cyber-cyan font-bold uppercase tracking-widest mt-1">Court Efficiency</p>
+                {/* Front Side: Control Deck / Live Ticker */}
+                <div 
+                  className="absolute inset-0 bg-[#0B0F19]/90 border border-white/10 rounded-3xl p-5 backdrop-blur-lg flex flex-col justify-between shadow-2xl"
+                  style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
+                >
+                  <div className="space-y-4">
+                    {/* Toggle Switch */}
+                    <div className="space-y-2 text-center">
+                      <span className="text-[9px] uppercase tracking-widest text-zinc-500 font-bold block">Engine Model</span>
+                      <div className="flex bg-zinc-950 border border-zinc-900 p-1 rounded-2xl w-full max-w-[200px] mx-auto">
+                        <button
+                          onClick={() => setEngineMode('statistical')}
+                          className={`flex-1 text-center py-1.5 text-[9px] font-black uppercase rounded-xl transition-all cursor-pointer ${
+                            engineMode === 'statistical'
+                              ? 'bg-zinc-900 text-white shadow-inner border border-zinc-800'
+                              : 'text-zinc-500 hover:text-zinc-300'
+                          }`}
+                        >
+                          Stat Matrix
+                        </button>
+                        <button
+                          onClick={() => setEngineMode('ml')}
+                          className={`flex-1 text-center py-1.5 text-[9px] font-black uppercase rounded-xl transition-all cursor-pointer ${
+                            engineMode === 'ml'
+                              ? 'bg-[#8B5CF6]/15 border border-[#8B5CF6]/30 text-[#8B5CF6]'
+                              : 'text-zinc-500 hover:text-zinc-300'
+                          }`}
+                        >
+                          Neural ML
+                        </button>
+                      </div>
                     </div>
-                  </div>
 
-                  <h3 className="text-lg font-black text-white uppercase tracking-tight">{simResult.winner} WINS!</h3>
-                  <div className="flex justify-center gap-4 text-xs font-black text-white pt-2">
-                    <span className="text-[#06B6D4]">{simResult.scoreA}</span>
-                    <span className="text-zinc-650">vs</span>
-                    <span className="text-[#F59E0B]">{simResult.scoreB}</span>
-                  </div>
-                </div>
-
-                {/* MVP card */}
-                <div className="p-3 bg-black/40 border border-white/[0.04] rounded-2xl flex items-center gap-3">
-                  <div className="h-9 w-9 rounded-full bg-zinc-900 border border-zinc-850 flex items-center justify-center font-black text-[#06B6D4] text-xs">
-                    {simResult.mvp.headshot}
-                  </div>
-                  <div>
-                    <span className="text-[8px] text-[#F59E0B] font-bold uppercase">Simulation MVP</span>
-                    <h4 className="text-xs font-black text-white leading-tight">{simResult.mvp.name}</h4>
-                  </div>
-                </div>
-
-                {/* Matchup battles comparison section: Team A vs Team B details */}
-                {simResult.positionBattles && (
-                  <div className="space-y-3 border-t border-white/[0.04] pt-5">
-                    <span className="text-[10px] text-zinc-400 font-black uppercase tracking-widest block mb-1">Positional Battles Matchups</span>
-                    <div className="space-y-3">
-                      {simResult.positionBattles.map((battle, idx) => {
-                        const playerA = teamA?.roster[battle.position as 'PG' | 'SG' | 'SF' | 'PF' | 'C'];
-                        const playerB = teamB?.roster[battle.position as 'PG' | 'SG' | 'SF' | 'PF' | 'C'];
-                        const isWinnerA = battle.winner === 'Team A' || battle.winner === teamA?.name;
-                        
-                        return (
-                          <div key={idx} className="flex flex-col gap-1.5 p-3 rounded-2xl bg-black/30 border border-white/[0.03] hover:border-white/10 transition-all">
-                            <div className="flex items-center justify-between text-sm font-extrabold">
-                              <span className="text-sm font-black text-zinc-500 uppercase">{battle.position}</span>
-                              <div className="flex items-center gap-2.5 text-white">
-                                <span className={isWinnerA ? 'text-cyber-cyan font-black text-base' : 'text-zinc-550'}>
-                                  {playerA ? playerA.name : 'Roster Alpha'}
-                                </span>
-                                <span className="text-amber-gold font-black text-lg mx-1.5">
-                                  {isWinnerA ? '>' : '<'}
-                                </span>
-                                <span className={!isWinnerA ? 'text-amber-gold font-black text-base' : 'text-zinc-550'}>
-                                  {playerB ? playerB.name : 'Roster Beta'}
-                                </span>
-                              </div>
-                            </div>
-                            <span className="text-xs text-zinc-400 font-medium">{battle.details}</span>
+                    {/* Simulation Ticker / Action */}
+                    {!isSimulating && visibleCommentary.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-4">
+                        <div className="relative flex justify-center items-center h-28 w-28 group animate-pulse-slow">
+                          <div className="absolute inset-0 rounded-full border border-dashed border-[#8B5CF6]/30 group-hover:border-[#8B5CF6]/80 group-hover:animate-spin" style={{ animationDuration: '16s' }} />
+                          <div className="absolute inset-2 rounded-full border border-dashed border-[#06B6D4]/30 group-hover:border-[#06B6D4]/80 group-hover:animate-spin" style={{ animationDuration: '8s', animationDirection: 'reverse' }} />
+                          <button
+                            onClick={runSimulation}
+                            className="absolute inset-3 rounded-full bg-black/90 border border-white/5 hover:border-white/20 text-white hover:text-[#06B6D4] transition-all flex flex-col items-center justify-center shadow-2xl cursor-pointer"
+                          >
+                            <Swords className="h-5 w-5 text-zinc-400 group-hover:scale-110 transition-transform" />
+                            <span className="text-[9px] font-black uppercase tracking-widest mt-1">Simulate</span>
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-3 w-full">
+                        {/* Progress Bar */}
+                        <div className="space-y-1 w-full">
+                          <div className="flex justify-between items-center text-[8px] text-[#06B6D4] font-black uppercase tracking-wider">
+                            <span>Jumbotron Engine</span>
+                            <span>{simProgress < 100 ? `Loading: ${simProgress}%` : 'Live Play-by-Play'}</span>
                           </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
+                          <div className="w-full bg-zinc-950 border border-zinc-900 h-1 rounded-full overflow-hidden">
+                            <div className="bg-gradient-to-r from-[#06B6D4] to-[#8B5CF6] h-full transition-all duration-150" style={{ width: `${simProgress}%` }} />
+                          </div>
+                        </div>
 
-                {/* 2. AI Explanation box (Structured Markdown) */}
-                <div className="p-4 bg-black/40 border border-white/[0.04] rounded-2xl max-h-[140px] overflow-y-auto pr-1">
-                  <span className="text-[9px] text-zinc-550 font-black uppercase tracking-widest block mb-2">Analyst Matrix Log</span>
-                  <div className="text-[10px] text-zinc-400 leading-relaxed whitespace-pre-wrap">
-                    {simResult.log.join('\n')}
+                        {/* Scrolling Monospaced Console */}
+                        <div className="w-full bg-black/60 border border-white/[0.04] rounded-2xl p-3 h-[180px] overflow-y-auto text-left space-y-2 font-mono shadow-inner scrollbar-none">
+                          {visibleCommentary.map((line, idx) => (
+                            <div 
+                              key={idx} 
+                              className={`text-[9px] leading-relaxed animate-fade-in ${
+                                idx === visibleCommentary.length - 1 ? 'text-[#06B6D4] font-bold' : 'text-zinc-550'
+                              }`}
+                            >
+                              {line}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
+                  
+                  <div className="text-[8px] text-zinc-650 text-center font-bold uppercase tracking-widest">
+                    Suspended Suspense Console
+                  </div>
+                </div>
+
+                {/* Back Side: Scoreboard & MVP (rotated 180deg) */}
+                <div 
+                  className="absolute inset-0 bg-[#0F1424]/95 border border-white/10 rounded-3xl p-5 backdrop-blur-xl flex flex-col justify-between shadow-2xl"
+                  style={{ 
+                    backfaceVisibility: 'hidden', 
+                    WebkitBackfaceVisibility: 'hidden',
+                    transform: 'rotateY(180deg)' 
+                  }}
+                >
+                  {simResult ? (
+                    <div className="flex flex-col h-full justify-between space-y-3">
+                      {/* Gauge Probability Matrix */}
+                      <div className="text-center space-y-1">
+                        <span className="text-[8px] text-zinc-550 font-bold uppercase tracking-widest block">Probability Matrix</span>
+                        
+                        <div className="relative h-16 w-32 mx-auto flex items-center justify-center">
+                          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 50">
+                            <path d="M 10 45 A 40 40 0 0 1 90 45" fill="none" stroke="#27272a" strokeWidth="5" strokeLinecap="round" />
+                            <path 
+                              d="M 10 45 A 40 40 0 0 1 90 45" 
+                              fill="none" 
+                              stroke="#06B6D4" 
+                              strokeWidth="5" 
+                              strokeLinecap="round" 
+                              strokeDasharray="125"
+                              strokeDashoffset={125 - (125 * (simResult.probability / 100))}
+                              className="transition-all duration-1000"
+                            />
+                          </svg>
+                          <div className="text-center z-10 pt-3">
+                            <span className="text-lg font-black text-white leading-none">{simResult.probability}%</span>
+                            <p className="text-[7px] text-[#06B6D4] font-bold uppercase tracking-wider">Court Efficiency</p>
+                          </div>
+                        </div>
+
+                        <h3 className="text-sm font-black text-white uppercase tracking-tight truncate">{simResult.winner} Wins!</h3>
+                        <div className="flex justify-center gap-3 text-xs font-black text-white">
+                          <span className="text-[#06B6D4]">{simResult.scoreA}</span>
+                          <span className="text-zinc-600">vs</span>
+                          <span className="text-[#F59E0B]">{simResult.scoreB}</span>
+                        </div>
+                      </div>
+
+                      {/* MVP card */}
+                      <div className="p-2 bg-black/40 border border-white/[0.04] rounded-xl flex items-center gap-2">
+                        <div className="h-8 w-8 rounded-full bg-zinc-900 border border-zinc-850 flex items-center justify-center font-black text-[#06B6D4] text-[10px]">
+                          {simResult.mvp.name.split(' ').map(n => n[0]).join('')}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <span className="text-[7px] text-[#F59E0B] font-bold uppercase block">Simulation MVP</span>
+                          <h4 className="text-[10px] font-black text-white leading-tight truncate">{simResult.mvp.name}</h4>
+                        </div>
+                      </div>
+
+                      {/* Play-again reset button */}
+                      <button
+                        onClick={() => {
+                          setFlipResult(false);
+                          setSimResult(null);
+                          setVisibleCommentary([]);
+                        }}
+                        className="w-full py-2 rounded-xl bg-white hover:bg-zinc-200 text-black font-extrabold text-[9px] uppercase tracking-wider transition-colors cursor-pointer"
+                      >
+                        Reset Arena Matchup
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-xs text-zinc-500">
+                      Empty Scoreboard
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Team Beta Tilted Court */}
+          <div 
+            className="absolute right-[1%] w-[42%] h-[380px] rounded-3xl transition-all duration-700"
+            style={{
+              transform: 'rotateX(55deg) rotateY(-12deg) translateZ(0px)',
+              transformStyle: 'preserve-3d',
+              background: 'radial-gradient(circle at center, #0e172a 0%, #030712 100%)',
+              border: '1px solid rgba(245, 158, 11, 0.15)',
+              boxShadow: '0 25px 60px rgba(245, 158, 11, 0.04)'
+            }}
+          >
+            <CourtMarkings color="#F59E0B" />
+            <Hoop color="#F59E0B" transformStyle="rotateX(-55deg) rotateY(12deg)" />
+            {Object.entries(teamB?.roster || { PG: null, SG: null, SF: null, PF: null, C: null }).map(([pos, player]) => (
+              <PlayerNode
+                key={pos}
+                player={player}
+                position={pos}
+                color="#F59E0B"
+                transformStyle="rotateX(-55deg) rotateY(12deg)"
+                onClick={() => player && setInspectPlayer(player)}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Lower layout showing Positional Battles & Log below the arena once simulation finishes */}
+        {simResult && flipResult && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-white/5 z-10 animate-fade-in">
+            {/* Positional Battles */}
+            {simResult.positionBattles && (
+              <div className="space-y-3 bg-[#0B0F19]/40 border border-white/5 rounded-3xl p-5 shadow-inner">
+                <span className="text-[10px] text-zinc-400 font-black uppercase tracking-widest block">Positional Battles Matchups</span>
+                <div className="space-y-2.5 max-h-[260px] overflow-y-auto pr-1">
+                  {simResult.positionBattles.map((battle, idx) => {
+                    const playerA = teamA?.roster[battle.position as 'PG' | 'SG' | 'SF' | 'PF' | 'C'];
+                    const playerB = teamB?.roster[battle.position as 'PG' | 'SG' | 'SF' | 'PF' | 'C'];
+                    const isWinnerA = battle.winner === 'Team A' || battle.winner === teamA?.name;
+                    
+                    return (
+                      <div key={idx} className="flex flex-col gap-1 p-2.5 rounded-xl bg-black/30 border border-white/[0.03] hover:border-white/10 transition-all text-xs">
+                        <div className="flex items-center justify-between font-bold">
+                          <span className="text-[10px] font-black text-zinc-550 uppercase">{battle.position}</span>
+                          <div className="flex items-center gap-2 text-white">
+                            <span className={isWinnerA ? 'text-[#06B6D4] font-black' : 'text-zinc-600'}>
+                              {playerA ? playerA.name : 'Roster Alpha'}
+                            </span>
+                            <span className="text-[#F59E0B] font-black mx-1">
+                              {isWinnerA ? '>' : '<'}
+                            </span>
+                            <span className={!isWinnerA ? 'text-[#F59E0B] font-black' : 'text-zinc-600'}>
+                              {playerB ? playerB.name : 'Roster Beta'}
+                            </span>
+                          </div>
+                        </div>
+                        <span className="text-[10px] text-zinc-550 leading-normal">{battle.details}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
-          </div>
-        </div>
 
-        {/* Team Beta (Right Roster Card) */}
-        <div className="lg:col-span-4 rounded-3xl border border-[#F59E0B]/15 bg-[#0B0F19]/40 backdrop-blur-xl p-5 space-y-6 shadow-[0_0_50px_rgba(245,158,11,0.02)]">
-          <div className="pb-3 border-b border-[#F59E0B]/15">
-            <span className="text-[9px] uppercase tracking-widest text-[#F59E0B] font-black">Roster Beta</span>
-            <h3 className="text-lg font-black text-white truncate">{teamB ? teamB.name : 'Select Team B'}</h3>
-          </div>
-
-          <div className="space-y-4">
-            {teamB && Object.entries(teamB.roster).map(([pos, player]) => (
-              <div
-                key={pos}
-                onClick={() => player && setInspectPlayer(player)}
-                className={`p-3.5 rounded-2xl bg-zinc-950/40 border border-zinc-900/60 hover:border-[#F59E0B]/30 hover:bg-zinc-900/40 transition-all space-y-3 ${player ? 'cursor-pointer' : ''}`}
-              >
-                <div className="flex justify-between items-center pb-2 border-b border-zinc-900">
-                  <span className="text-xs font-black text-[#F59E0B] uppercase">{pos}</span>
-                  <span className="text-xs font-bold text-white truncate max-w-[130px] group-hover:text-[#F59E0B]">{player ? player.name : 'Empty Slot'}</span>
+            {/* AI Explanation Log */}
+            <div className="space-y-3 bg-[#0B0F19]/40 border border-white/5 rounded-3xl p-5 shadow-inner flex flex-col justify-between">
+              <div>
+                <span className="text-[10px] text-[#F59E0B] font-black uppercase tracking-widest block mb-3">Simulation Performance Log</span>
+                <div className="text-[10px] text-zinc-400 leading-relaxed font-mono whitespace-pre-wrap max-h-[210px] overflow-y-auto pr-1">
+                  {simResult.log.join('\n')}
                 </div>
-
-                {player ? (
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-                    {renderHorizontalStatBar('PPG', player.ppg, 35, 'bg-gradient-to-r from-[#F59E0B] to-amber-600')}
-                    {renderHorizontalStatBar('RPG', player.rpg, 25, 'bg-gradient-to-r from-[#F59E0B] to-amber-600')}
-                    {renderHorizontalStatBar('APG', player.apg, 15, 'bg-gradient-to-r from-[#F59E0B] to-amber-600')}
-                    {renderHorizontalStatBar('TS%', player.ts, 100, 'bg-gradient-to-r from-[#F59E0B] to-amber-600')}
-                  </div>
-                ) : (
-                  <p className="text-[10px] text-zinc-650 italic">No player assigned to this position</p>
-                )}
               </div>
-            ))}
+            </div>
           </div>
-
-          <button
-            onClick={() => setActiveSelectionPanel('B')}
-            className="w-full py-3.5 rounded-xl border border-[#F59E0B]/20 hover:border-[#F59E0B]/50 bg-zinc-950/60 hover:bg-zinc-950 text-xs font-bold text-zinc-300 hover:text-white transition-all cursor-pointer uppercase tracking-wider"
-          >
-            Change Team Beta
-          </button>
-        </div>
-
+        )}
       </div>
 
       {/* Drawer Overlay for team selection portal */}
