@@ -72,6 +72,23 @@ const positionCoordinates: Record<string, { top: string; left: string }> = {
   C: { top: '25%', left: '50%' }
 };
 
+const getRealNbaId = (id: string): string => {
+  const clean = id.toLowerCase();
+  if (clean.includes('mj') || clean.includes('jordan')) return '893';
+  if (clean.includes('lebron') || clean.includes('james')) return '2544';
+  if (clean.includes('kobe') || clean.includes('bryant')) return '977';
+  if (clean.includes('curry')) return '201939';
+  if (clean.includes('shaq') || clean.includes('oneal')) return '406';
+  if (clean.includes('hakeem') || clean.includes('olajuwon')) return '349';
+  if (clean.includes('bird')) return '1449';
+  if (clean.includes('duncan')) return '1495';
+  if (clean.includes('jokic')) return '203999';
+  if (clean.includes('giannis') || clean.includes('antet')) return '203507';
+  if (clean.includes('durant')) return '201142';
+  if (clean.includes('robertson')) return '78007';
+  return id.split('-')[0];
+};
+
 const CourtMarkings = ({ color }: { color: string }) => (
   <div className="absolute inset-0 pointer-events-none opacity-25">
     {/* Outlines */}
@@ -116,7 +133,7 @@ const PlayerNode = ({
   onClick: () => void 
 }) => {
   const headshotUrl = player 
-    ? `https://cdn.nba.com/headshots/nba/latest/1040x760/${player.id.split('-')[0]}.png`
+    ? `https://cdn.nba.com/headshots/nba/latest/1040x760/${getRealNbaId(player.id)}.png`
     : '';
 
   return (
@@ -155,7 +172,7 @@ const PlayerNode = ({
                   alt={player.name}
                   className="h-14 w-14 object-cover object-top translate-y-1.5 scale-125 transition-transform"
                   onError={(e) => {
-                    (e.target as HTMLElement).style.display = 'none';
+                    (e.target as HTMLElement).style.opacity = '0';
                   }}
                 />
                 <span className="absolute font-black text-zinc-700 text-[10px] tracking-tighter uppercase pointer-events-none select-none z-[-1]">
@@ -423,7 +440,7 @@ export const MatchupsPage: React.FC = () => {
           <div 
             className="absolute left-[1%] w-[42%] h-[380px] rounded-3xl transition-all duration-700"
             style={{
-              transform: 'rotateX(55deg) rotateY(12deg) translateZ(0px)',
+              transform: 'rotateX(55deg) rotateY(0deg) translateZ(0px)',
               transformStyle: 'preserve-3d',
               background: 'radial-gradient(circle at center, #0e172a 0%, #030712 100%)',
               border: '1px solid rgba(6, 182, 212, 0.15)',
@@ -431,14 +448,14 @@ export const MatchupsPage: React.FC = () => {
             }}
           >
             <CourtMarkings color="#06B6D4" />
-            <Hoop color="#06B6D4" transformStyle="rotateX(-55deg) rotateY(-12deg)" />
+            <Hoop color="#06B6D4" transformStyle="rotateX(-55deg) rotateY(0deg)" />
             {Object.entries(teamA?.roster || { PG: null, SG: null, SF: null, PF: null, C: null }).map(([pos, player]) => (
               <PlayerNode
                 key={pos}
                 player={player}
                 position={pos}
                 color="#06B6D4"
-                transformStyle="rotateX(-55deg) rotateY(-12deg)"
+                transformStyle="rotateX(-55deg) rotateY(0deg)"
                 onClick={() => player && setInspectPlayer(player)}
               />
             ))}
@@ -463,31 +480,29 @@ export const MatchupsPage: React.FC = () => {
                   style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
                 >
                   <div className="space-y-4">
-                    {/* Toggle Switch */}
-                    <div className="space-y-2 text-center">
-                      <span className="text-[9px] uppercase tracking-widest text-zinc-500 font-bold block">Engine Model</span>
-                      <div className="flex bg-zinc-950 border border-zinc-900 p-1 rounded-2xl w-full max-w-[200px] mx-auto">
-                        <button
-                          onClick={() => setEngineMode('statistical')}
-                          className={`flex-1 text-center py-1.5 text-[9px] font-black uppercase rounded-xl transition-all cursor-pointer ${
-                            engineMode === 'statistical'
-                              ? 'bg-zinc-900 text-white shadow-inner border border-zinc-800'
-                              : 'text-zinc-500 hover:text-zinc-300'
-                          }`}
-                        >
-                          Stat Matrix
-                        </button>
-                        <button
-                          onClick={() => setEngineMode('ml')}
-                          className={`flex-1 text-center py-1.5 text-[9px] font-black uppercase rounded-xl transition-all cursor-pointer ${
-                            engineMode === 'ml'
-                              ? 'bg-[#8B5CF6]/15 border border-[#8B5CF6]/30 text-[#8B5CF6]'
-                              : 'text-zinc-500 hover:text-zinc-300'
-                          }`}
-                        >
-                          Neural ML
-                        </button>
-                      </div>
+                    {/* Subtle Engine Model Select */}
+                    <div className="flex items-center justify-center gap-1.5 text-[9px] text-zinc-550 py-1 bg-zinc-950/40 rounded-xl border border-white/[0.03] max-w-[190px] mx-auto">
+                      <span className="font-semibold uppercase tracking-wider text-zinc-500 scale-90">Engine:</span>
+                      <button
+                        onClick={() => setEngineMode('statistical')}
+                        className={`px-1.5 py-0.5 rounded-lg text-[8px] font-black uppercase transition-all cursor-pointer ${
+                          engineMode === 'statistical'
+                            ? 'bg-zinc-900 border border-zinc-800 text-white'
+                            : 'border-transparent text-zinc-550 hover:text-zinc-350'
+                        }`}
+                      >
+                        Rule Based
+                      </button>
+                      <button
+                        onClick={() => setEngineMode('ml')}
+                        className={`px-1.5 py-0.5 rounded-lg text-[8px] font-black uppercase transition-all cursor-pointer ${
+                          engineMode === 'ml'
+                            ? 'bg-[#8B5CF6]/15 border border-[#8B5CF6]/30 text-[#8B5CF6]'
+                            : 'border-transparent text-zinc-550 hover:text-zinc-300'
+                        }`}
+                      >
+                        Neural Model
+                      </button>
                     </div>
 
                     {/* Simulation Ticker / Action */}
@@ -620,7 +635,7 @@ export const MatchupsPage: React.FC = () => {
           <div 
             className="absolute right-[1%] w-[42%] h-[380px] rounded-3xl transition-all duration-700"
             style={{
-              transform: 'rotateX(55deg) rotateY(-12deg) translateZ(0px)',
+              transform: 'rotateX(55deg) rotateY(0deg) translateZ(0px)',
               transformStyle: 'preserve-3d',
               background: 'radial-gradient(circle at center, #0e172a 0%, #030712 100%)',
               border: '1px solid rgba(245, 158, 11, 0.15)',
@@ -628,14 +643,14 @@ export const MatchupsPage: React.FC = () => {
             }}
           >
             <CourtMarkings color="#F59E0B" />
-            <Hoop color="#F59E0B" transformStyle="rotateX(-55deg) rotateY(12deg)" />
+            <Hoop color="#F59E0B" transformStyle="rotateX(-55deg) rotateY(0deg)" />
             {Object.entries(teamB?.roster || { PG: null, SG: null, SF: null, PF: null, C: null }).map(([pos, player]) => (
               <PlayerNode
                 key={pos}
                 player={player}
                 position={pos}
                 color="#F59E0B"
-                transformStyle="rotateX(-55deg) rotateY(12deg)"
+                transformStyle="rotateX(-55deg) rotateY(0deg)"
                 onClick={() => player && setInspectPlayer(player)}
               />
             ))}
@@ -749,11 +764,11 @@ export const MatchupsPage: React.FC = () => {
             <div className="flex gap-5 items-center relative z-10">
               <div className="h-24 w-24 rounded-2xl bg-[#18181b] border border-white/10 flex items-center justify-center relative overflow-hidden shadow-lg">
                 <img
-                  src={`https://cdn.nba.com/headshots/nba/latest/1040x760/${inspectPlayer.id.split('-')[0]}.png`}
+                  src={`https://cdn.nba.com/headshots/nba/latest/1040x760/${getRealNbaId(inspectPlayer.id)}.png`}
                   alt={inspectPlayer.name}
                   className="h-28 w-28 object-cover object-top translate-y-2.5 scale-125"
                   onError={(e) => {
-                    (e.target as HTMLElement).style.display = 'none';
+                    (e.target as HTMLElement).style.opacity = '0';
                   }}
                 />
                 {/* Fallback initials if headshot image fails */}
