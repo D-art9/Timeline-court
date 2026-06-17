@@ -185,8 +185,8 @@ const PlayerNode = ({
           </div>
           
           {player && (
-            <div className="mt-1 px-1.5 py-0.5 rounded bg-black/90 border border-white/5 shadow-md max-w-[65px] truncate text-center">
-              <span className="text-[7px] font-bold text-white block truncate">{player.name}</span>
+            <div className="mt-1.5 px-2 py-0.5 rounded bg-zinc-950/95 border border-white/10 shadow-lg max-w-[100px] text-center backdrop-blur-md">
+              <span className="text-[9.5px] font-bold text-white block truncate tracking-wide select-none">{player.name}</span>
             </div>
           )}
         </div>
