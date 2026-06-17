@@ -91,11 +91,26 @@ TEMPLATES = [
 WSGI_APPLICATION = 'nba_project.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/6.0/ref/settings/#databases
+import urllib.parse as urlparse
 
+db_url = os.environ.get('DATABASE_URL') or os.environ.get('INTERNAL_DATABASE_URL')
 DB_ENGINE = os.environ.get('DB_ENGINE', 'sqlite').lower()
-if DB_ENGINE == 'postgresql':
+
+if db_url:
+    urlparse.uses_netloc.append("postgres")
+    urlparse.uses_netloc.append("postgresql")
+    url = urlparse.urlparse(db_url)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': url.path[1:],
+            'USER': url.username,
+            'PASSWORD': url.password,
+            'HOST': url.hostname,
+            'PORT': url.port or 5432,
+        }
+    }
+elif DB_ENGINE == 'postgresql':
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
