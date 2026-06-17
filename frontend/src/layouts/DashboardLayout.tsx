@@ -84,22 +84,26 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       </div>
 
       {/* Left Player Faded Background Image Overlay positioned on the left side */}
-      <div className="fixed top-0 bottom-0 left-0 z-0 w-full md:w-[40%] pointer-events-none opacity-[0.15] mix-blend-screen flex items-end justify-start">
-        <img 
-          src={playerLeftBg} 
-          alt="NBA Player Background Left" 
-          className="h-[85vh] w-auto object-contain object-bottom select-none translate-x-[10%] scale-x-[-1]"
-        />
-      </div>
+      {activeTab !== 'matchups' && (
+        <div className="fixed top-0 bottom-0 left-0 z-0 w-full md:w-[40%] pointer-events-none opacity-[0.15] mix-blend-screen flex items-end justify-start">
+          <img 
+            src={playerLeftBg} 
+            alt="NBA Player Background Left" 
+            className="h-[85vh] w-auto object-contain object-bottom select-none translate-x-[10%] scale-x-[-1]"
+          />
+        </div>
+      )}
 
       {/* Lebron James Faded Background Image Overlay positioned leftward to avoid sidebar cover */}
-      <div className="fixed top-0 bottom-0 right-0 z-0 w-full md:w-[70%] pointer-events-none opacity-[0.15] mix-blend-screen flex items-end justify-end">
-        <img 
-          src={lebronBg} 
-          alt="Lebron James Background" 
-          className="h-[85vh] w-auto object-contain object-bottom select-none -translate-x-[25%]"
-        />
-      </div>
+      {activeTab !== 'matchups' && (
+        <div className="fixed top-0 bottom-0 right-0 z-0 w-full md:w-[70%] pointer-events-none opacity-[0.15] mix-blend-screen flex items-end justify-end">
+          <img 
+            src={lebronBg} 
+            alt="Lebron James Background" 
+            className="h-[85vh] w-auto object-contain object-bottom select-none -translate-x-[25%]"
+          />
+        </div>
+      )}
 
       <div className="relative z-10 mx-auto max-w-7xl">
         {/* Camouflaged Bento Navigation Header */}

@@ -404,9 +404,181 @@ export const MatchupsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 3D double court arena with suspended Jumbotron */}
+      {/* Suspended Jumbotron Console (Centered, Clean, No Skew) */}
+      <div className="flex justify-center items-center w-full z-20">
+        <div className="w-full max-w-lg h-[240px]">
+          <div className="relative w-full h-full" style={{ perspective: '1000px', transformStyle: 'preserve-3d' }}>
+            <div 
+              className="w-full h-full relative"
+              style={{ 
+                transform: flipResult ? 'rotateY(180deg)' : 'rotateY(0deg)',
+                transformStyle: 'preserve-3d',
+                transition: 'transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+              }}
+            >
+              {/* Front Side: Control Deck / Live Ticker */}
+              <div 
+                className="absolute inset-0 bg-[#0B0F19]/90 border border-white/10 rounded-3xl p-5 backdrop-blur-lg flex flex-col justify-between shadow-2xl"
+                style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
+              >
+                <div className="space-y-4">
+                  {/* Subtle Engine Model Select */}
+                  <div className="flex items-center justify-center gap-1.5 text-[9px] text-zinc-550 py-1 bg-zinc-950/40 rounded-xl border border-white/[0.03] max-w-[190px] mx-auto">
+                    <span className="font-semibold uppercase tracking-wider text-zinc-500 scale-90">Engine:</span>
+                    <button
+                      onClick={() => setEngineMode('statistical')}
+                      className={`px-1.5 py-0.5 rounded-lg text-[8px] font-black uppercase transition-all cursor-pointer ${
+                        engineMode === 'statistical'
+                          ? 'bg-zinc-900 border border-zinc-800 text-white'
+                          : 'border-transparent text-zinc-550 hover:text-zinc-350'
+                      }`}
+                    >
+                      Rule Based
+                    </button>
+                    <button
+                      onClick={() => setEngineMode('ml')}
+                      className={`px-1.5 py-0.5 rounded-lg text-[8px] font-black uppercase transition-all cursor-pointer ${
+                        engineMode === 'ml'
+                          ? 'bg-[#8B5CF6]/15 border border-[#8B5CF6]/30 text-[#8B5CF6]'
+                          : 'border-transparent text-zinc-550 hover:text-zinc-350'
+                      }`}
+                    >
+                      Neural Model
+                    </button>
+                  </div>
+
+                  {/* Simulation Ticker / Action */}
+                  {!isSimulating && visibleCommentary.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-1">
+                      <div className="relative flex justify-center items-center h-24 w-24 group animate-pulse-slow">
+                        <div className="absolute inset-0 rounded-full border border-dashed border-[#8B5CF6]/30 group-hover:border-[#8B5CF6]/80 group-hover:animate-spin" style={{ animationDuration: '16s' }} />
+                        <div className="absolute inset-2 rounded-full border border-dashed border-[#06B6D4]/30 group-hover:border-[#06B6D4]/80 group-hover:animate-spin" style={{ animationDuration: '8s', animationDirection: 'reverse' }} />
+                        <button
+                          onClick={runSimulation}
+                          className="absolute inset-3 rounded-full bg-black/90 border border-white/5 hover:border-white/20 text-white hover:text-[#06B6D4] transition-all flex flex-col items-center justify-center shadow-2xl cursor-pointer"
+                        >
+                          <Swords className="h-4 w-4 text-zinc-400 group-hover:scale-110 transition-transform" />
+                          <span className="text-[9px] font-black uppercase tracking-widest mt-0.5">Simulate</span>
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-2.5 w-full">
+                      {/* Progress Bar */}
+                      <div className="space-y-0.5 w-full">
+                        <div className="flex justify-between items-center text-[8px] text-[#06B6D4] font-black uppercase tracking-wider">
+                          <span>Jumbotron Engine</span>
+                          <span>{simProgress < 100 ? `Loading: ${simProgress}%` : 'Live Play-by-Play'}</span>
+                        </div>
+                        <div className="w-full bg-zinc-950 border border-zinc-900 h-1 rounded-full overflow-hidden">
+                          <div className="bg-gradient-to-r from-[#06B6D4] to-[#8B5CF6] h-full transition-all duration-150" style={{ width: `${simProgress}%` }} />
+                        </div>
+                      </div>
+
+                      {/* Scrolling Monospaced Console */}
+                      <div className="w-full bg-black/60 border border-white/[0.04] rounded-2xl p-2.5 h-[115px] overflow-y-auto text-left space-y-1.5 font-mono shadow-inner scrollbar-none">
+                        {visibleCommentary.map((line, idx) => (
+                          <div 
+                            key={idx} 
+                            className={`text-[9px] leading-relaxed animate-fade-in ${
+                              idx === visibleCommentary.length - 1 ? 'text-[#06B6D4] font-bold' : 'text-zinc-550'
+                            }`}
+                          >
+                            {line}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="text-[8px] text-zinc-650 text-center font-bold uppercase tracking-widest mb-1.5">
+                  Suspended Suspense Console
+                </div>
+              </div>
+
+              {/* Back Side: Scoreboard & MVP (rotated 180deg) */}
+              <div 
+                className="absolute inset-0 bg-[#0F1424]/95 border border-white/10 rounded-3xl p-4 backdrop-blur-xl flex flex-col justify-between shadow-2xl"
+                style={{ 
+                  backfaceVisibility: 'hidden', 
+                  WebkitBackfaceVisibility: 'hidden',
+                  transform: 'rotateY(180deg)' 
+                }}
+              >
+                {simResult ? (
+                  <div className="flex flex-col h-full justify-between space-y-2">
+                    {/* Gauge Probability Matrix */}
+                    <div className="text-center space-y-1 flex items-center justify-between gap-4">
+                      {/* Left: Prob Graph */}
+                      <div className="relative h-14 w-24 flex items-center justify-center shrink-0">
+                        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 50">
+                          <path d="M 10 45 A 40 40 0 0 1 90 45" fill="none" stroke="#27272a" strokeWidth="5" strokeLinecap="round" />
+                          <path 
+                            d="M 10 45 A 40 40 0 0 1 90 45" 
+                            fill="none" 
+                            stroke="#06B6D4" 
+                            strokeWidth="5" 
+                            strokeLinecap="round" 
+                            strokeDasharray="125"
+                            strokeDashoffset={125 - (125 * (simResult.probability / 100))}
+                            className="transition-all duration-1000"
+                          />
+                        </svg>
+                        <div className="text-center z-10 pt-2.5">
+                          <span className="text-sm font-black text-white leading-none">{simResult.probability}%</span>
+                          <p className="text-[6px] text-[#06B6D4] font-bold uppercase tracking-wider">Court Efficiency</p>
+                        </div>
+                      </div>
+
+                      {/* Right: Scores */}
+                      <div className="text-right flex-grow">
+                        <h3 className="text-xs font-black text-white uppercase tracking-tight truncate">{simResult.winner} Wins!</h3>
+                        <div className="flex justify-end gap-2.5 text-xs font-black text-white mt-0.5">
+                          <span className="text-[#06B6D4]">{simResult.scoreA}</span>
+                          <span className="text-zinc-650">vs</span>
+                          <span className="text-[#F59E0B]">{simResult.scoreB}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* MVP card */}
+                    <div className="p-2 bg-black/40 border border-white/[0.04] rounded-xl flex items-center gap-2">
+                      <div className="h-7 w-7 rounded-full bg-zinc-900 border border-zinc-850 flex items-center justify-center font-black text-[#06B6D4] text-[9px]">
+                        {simResult.mvp.name.split(' ').map(n => n[0]).join('')}
+                      </div>
+                      <div className="min-w-0 flex-1 text-left">
+                        <span className="text-[6px] text-[#F59E0B] font-bold uppercase block">Simulation MVP</span>
+                        <h4 className="text-[9px] font-black text-white leading-tight truncate">{simResult.mvp.name}</h4>
+                      </div>
+                    </div>
+
+                    {/* Play-again reset button */}
+                    <button
+                      onClick={() => {
+                        setFlipResult(false);
+                        setSimResult(null);
+                        setVisibleCommentary([]);
+                      }}
+                      className="w-full py-2 rounded-xl bg-white hover:bg-zinc-200 text-black font-extrabold text-[9px] uppercase tracking-wider transition-colors cursor-pointer"
+                    >
+                      Reset Arena Matchup
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center h-full text-xs text-zinc-500">
+                    Empty Scoreboard
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 3D double court arena - Side by Side (No overlays in center!) */}
       <div 
-        className="relative w-full min-h-[720px] rounded-3xl border border-white/5 bg-[#080d1a]/20 backdrop-blur-xl overflow-hidden p-6 flex flex-col justify-between"
+        className="relative w-full min-h-[480px] rounded-3xl border border-white/5 bg-[#080d1a]/20 backdrop-blur-xl overflow-hidden p-6 flex flex-col justify-between"
         style={{ perspective: '1200px', transformStyle: 'preserve-3d' }}
       >
         {/* Top Header inside Arena */}
@@ -435,10 +607,10 @@ export const MatchupsPage: React.FC = () => {
         </div>
 
         {/* 3D Scene Viewport */}
-        <div className="relative flex-grow flex items-center justify-between w-full h-[540px] overflow-visible" style={{ transformStyle: 'preserve-3d' }}>
-          {/* Team Alpha Tilted Court */}
+        <div className="relative flex-grow flex items-center justify-between w-full h-[400px] overflow-visible" style={{ transformStyle: 'preserve-3d' }}>
+          {/* Team Alpha Tilted Court (49% Width, full visibility) */}
           <div 
-            className="absolute left-[1%] w-[42%] h-[380px] rounded-3xl transition-all duration-700"
+            className="absolute left-0 w-[49%] h-[380px] rounded-3xl transition-all duration-700"
             style={{
               transform: 'rotateX(55deg) rotateY(0deg) translateZ(0px)',
               transformStyle: 'preserve-3d',
@@ -461,179 +633,9 @@ export const MatchupsPage: React.FC = () => {
             ))}
           </div>
 
-          {/* Suspended Jumbotron Console */}
+          {/* Team Beta Tilted Court (49% Width, full visibility) */}
           <div 
-            className="absolute left-[33%] right-[33%] z-30 flex flex-col justify-center items-center h-[420px]"
-          >
-            <div className="relative w-full h-full" style={{ perspective: '1000px', transformStyle: 'preserve-3d' }}>
-              <div 
-                className="w-full h-full relative"
-                style={{ 
-                  transform: flipResult ? 'rotateY(180deg)' : 'rotateY(0deg)',
-                  transformStyle: 'preserve-3d',
-                  transition: 'transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
-                }}
-              >
-                {/* Front Side: Control Deck / Live Ticker */}
-                <div 
-                  className="absolute inset-0 bg-[#0B0F19]/90 border border-white/10 rounded-3xl p-5 backdrop-blur-lg flex flex-col justify-between shadow-2xl"
-                  style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
-                >
-                  <div className="space-y-4">
-                    {/* Subtle Engine Model Select */}
-                    <div className="flex items-center justify-center gap-1.5 text-[9px] text-zinc-550 py-1 bg-zinc-950/40 rounded-xl border border-white/[0.03] max-w-[190px] mx-auto">
-                      <span className="font-semibold uppercase tracking-wider text-zinc-500 scale-90">Engine:</span>
-                      <button
-                        onClick={() => setEngineMode('statistical')}
-                        className={`px-1.5 py-0.5 rounded-lg text-[8px] font-black uppercase transition-all cursor-pointer ${
-                          engineMode === 'statistical'
-                            ? 'bg-zinc-900 border border-zinc-800 text-white'
-                            : 'border-transparent text-zinc-550 hover:text-zinc-350'
-                        }`}
-                      >
-                        Rule Based
-                      </button>
-                      <button
-                        onClick={() => setEngineMode('ml')}
-                        className={`px-1.5 py-0.5 rounded-lg text-[8px] font-black uppercase transition-all cursor-pointer ${
-                          engineMode === 'ml'
-                            ? 'bg-[#8B5CF6]/15 border border-[#8B5CF6]/30 text-[#8B5CF6]'
-                            : 'border-transparent text-zinc-550 hover:text-zinc-300'
-                        }`}
-                      >
-                        Neural Model
-                      </button>
-                    </div>
-
-                    {/* Simulation Ticker / Action */}
-                    {!isSimulating && visibleCommentary.length === 0 ? (
-                      <div className="flex flex-col items-center justify-center py-4">
-                        <div className="relative flex justify-center items-center h-28 w-28 group animate-pulse-slow">
-                          <div className="absolute inset-0 rounded-full border border-dashed border-[#8B5CF6]/30 group-hover:border-[#8B5CF6]/80 group-hover:animate-spin" style={{ animationDuration: '16s' }} />
-                          <div className="absolute inset-2 rounded-full border border-dashed border-[#06B6D4]/30 group-hover:border-[#06B6D4]/80 group-hover:animate-spin" style={{ animationDuration: '8s', animationDirection: 'reverse' }} />
-                          <button
-                            onClick={runSimulation}
-                            className="absolute inset-3 rounded-full bg-black/90 border border-white/5 hover:border-white/20 text-white hover:text-[#06B6D4] transition-all flex flex-col items-center justify-center shadow-2xl cursor-pointer"
-                          >
-                            <Swords className="h-5 w-5 text-zinc-400 group-hover:scale-110 transition-transform" />
-                            <span className="text-[9px] font-black uppercase tracking-widest mt-1">Simulate</span>
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="space-y-3 w-full">
-                        {/* Progress Bar */}
-                        <div className="space-y-1 w-full">
-                          <div className="flex justify-between items-center text-[8px] text-[#06B6D4] font-black uppercase tracking-wider">
-                            <span>Jumbotron Engine</span>
-                            <span>{simProgress < 100 ? `Loading: ${simProgress}%` : 'Live Play-by-Play'}</span>
-                          </div>
-                          <div className="w-full bg-zinc-950 border border-zinc-900 h-1 rounded-full overflow-hidden">
-                            <div className="bg-gradient-to-r from-[#06B6D4] to-[#8B5CF6] h-full transition-all duration-150" style={{ width: `${simProgress}%` }} />
-                          </div>
-                        </div>
-
-                        {/* Scrolling Monospaced Console */}
-                        <div className="w-full bg-black/60 border border-white/[0.04] rounded-2xl p-3 h-[180px] overflow-y-auto text-left space-y-2 font-mono shadow-inner scrollbar-none">
-                          {visibleCommentary.map((line, idx) => (
-                            <div 
-                              key={idx} 
-                              className={`text-[9px] leading-relaxed animate-fade-in ${
-                                idx === visibleCommentary.length - 1 ? 'text-[#06B6D4] font-bold' : 'text-zinc-550'
-                              }`}
-                            >
-                              {line}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="text-[8px] text-zinc-650 text-center font-bold uppercase tracking-widest">
-                    Suspended Suspense Console
-                  </div>
-                </div>
-
-                {/* Back Side: Scoreboard & MVP (rotated 180deg) */}
-                <div 
-                  className="absolute inset-0 bg-[#0F1424]/95 border border-white/10 rounded-3xl p-5 backdrop-blur-xl flex flex-col justify-between shadow-2xl"
-                  style={{ 
-                    backfaceVisibility: 'hidden', 
-                    WebkitBackfaceVisibility: 'hidden',
-                    transform: 'rotateY(180deg)' 
-                  }}
-                >
-                  {simResult ? (
-                    <div className="flex flex-col h-full justify-between space-y-3">
-                      {/* Gauge Probability Matrix */}
-                      <div className="text-center space-y-1">
-                        <span className="text-[8px] text-zinc-550 font-bold uppercase tracking-widest block">Probability Matrix</span>
-                        
-                        <div className="relative h-16 w-32 mx-auto flex items-center justify-center">
-                          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 50">
-                            <path d="M 10 45 A 40 40 0 0 1 90 45" fill="none" stroke="#27272a" strokeWidth="5" strokeLinecap="round" />
-                            <path 
-                              d="M 10 45 A 40 40 0 0 1 90 45" 
-                              fill="none" 
-                              stroke="#06B6D4" 
-                              strokeWidth="5" 
-                              strokeLinecap="round" 
-                              strokeDasharray="125"
-                              strokeDashoffset={125 - (125 * (simResult.probability / 100))}
-                              className="transition-all duration-1000"
-                            />
-                          </svg>
-                          <div className="text-center z-10 pt-3">
-                            <span className="text-lg font-black text-white leading-none">{simResult.probability}%</span>
-                            <p className="text-[7px] text-[#06B6D4] font-bold uppercase tracking-wider">Court Efficiency</p>
-                          </div>
-                        </div>
-
-                        <h3 className="text-sm font-black text-white uppercase tracking-tight truncate">{simResult.winner} Wins!</h3>
-                        <div className="flex justify-center gap-3 text-xs font-black text-white">
-                          <span className="text-[#06B6D4]">{simResult.scoreA}</span>
-                          <span className="text-zinc-600">vs</span>
-                          <span className="text-[#F59E0B]">{simResult.scoreB}</span>
-                        </div>
-                      </div>
-
-                      {/* MVP card */}
-                      <div className="p-2 bg-black/40 border border-white/[0.04] rounded-xl flex items-center gap-2">
-                        <div className="h-8 w-8 rounded-full bg-zinc-900 border border-zinc-850 flex items-center justify-center font-black text-[#06B6D4] text-[10px]">
-                          {simResult.mvp.name.split(' ').map(n => n[0]).join('')}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <span className="text-[7px] text-[#F59E0B] font-bold uppercase block">Simulation MVP</span>
-                          <h4 className="text-[10px] font-black text-white leading-tight truncate">{simResult.mvp.name}</h4>
-                        </div>
-                      </div>
-
-                      {/* Play-again reset button */}
-                      <button
-                        onClick={() => {
-                          setFlipResult(false);
-                          setSimResult(null);
-                          setVisibleCommentary([]);
-                        }}
-                        className="w-full py-2 rounded-xl bg-white hover:bg-zinc-200 text-black font-extrabold text-[9px] uppercase tracking-wider transition-colors cursor-pointer"
-                      >
-                        Reset Arena Matchup
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-center h-full text-xs text-zinc-500">
-                      Empty Scoreboard
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Team Beta Tilted Court */}
-          <div 
-            className="absolute right-[1%] w-[42%] h-[380px] rounded-3xl transition-all duration-700"
+            className="absolute right-0 w-[49%] h-[380px] rounded-3xl transition-all duration-700"
             style={{
               transform: 'rotateX(55deg) rotateY(0deg) translateZ(0px)',
               transformStyle: 'preserve-3d',
