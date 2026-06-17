@@ -7,6 +7,8 @@ from .models import SimulationHistory
 from players.models import CustomTeam, Player
 from .ai_services import get_ai_matchup_explanation, get_ai_team_improvements
 from .ai_providers import get_llm_provider
+from django.core.cache import cache
+
 
 class MatchupSimulationView(APIView):
     """
@@ -28,33 +30,65 @@ class MatchupSimulationView(APIView):
             )
             
         try:
-            simulation_result = generate_matchup_analytics(team_a_id, team_b_id)
-            
             team_a = CustomTeam.objects.get(id=team_a_id)
             team_b = CustomTeam.objects.get(id=team_b_id)
             
-            if sim_type == 'ml':
-                ml_prob = predict_matchup_win_prob(team_a, team_b)
-                prob_a = ml_prob['team_a_win_probability']
-                prob_b = ml_prob['team_b_win_probability']
-                
-                simulation_result['team_a']['win_probability'] = prob_a
-                simulation_result['team_b']['win_probability'] = prob_b
-                
-                if prob_a > prob_b:
-                    simulation_result['predicted_winner'] = team_a.name
-                elif prob_b > prob_a:
-                    simulation_result['predicted_winner'] = team_b.name
-                else:
-                    simulation_result['predicted_winner'] = 'Tie'
+            # Use a cache key based on the teams and simulation type
+            cache_key = f"sim_engine_{team_a_id}_{team_b_id}_{sim_type}"
+            simulation_result = cache.get(cache_key)
             
-            predicted_winner = simulation_result['predicted_winner']
+            if not simulation_result:
+                simulation_result = generate_matchup_analytics(team_a_id, team_b_id)
+                
+                if sim_type == 'ml':
+                    ml_prob = predict_matchup_win_prob(team_a, team_b)
+                    prob_a = ml_prob['team_a_win_probability']
+                    prob_b = ml_prob['team_b_win_probability']
+                    
+                    simulation_result['team_a']['win_probability'] = prob_a
+                    simulation_result['team_b']['win_probability'] = prob_b
+                    
+                    if prob_a > prob_b:
+                        simulation_result['predicted_winner'] = team_a.name
+                    elif prob_b > prob_a:
+                        simulation_result['predicted_winner'] = team_b.name
+                    else:
+                        simulation_result['predicted_winner'] = 'Tie'
+                
+                # Map to requested frontend keys at root level
+                rating_a = simulation_result.get('team_a', {}).get('rating', 100.0)
+                rating_b = simulation_result.get('team_b', {}).get('rating', 100.0)
+                total = rating_a + rating_b
+                score_a = round(90 + (rating_a / total) * 35)
+                score_b = round(90 + (rating_b / total) * 35)
+
+                predicted_winner = simulation_result['predicted_winner']
+
+                # Keep existing structure but add root-level aliases
+                simulation_result['winner'] = predicted_winner
+                simulation_result['probability_a'] = simulation_result['team_a']['win_probability']
+                simulation_result['probability_b'] = simulation_result['team_b']['win_probability']
+                simulation_result['score_a'] = score_a
+                simulation_result['score_b'] = score_b
+                simulation_result['ratings'] = {
+                    'team_a': rating_a,
+                    'team_b': rating_b
+                }
+                simulation_result['mvp player'] = simulation_result['best_player']
+                simulation_result['mvp_player'] = simulation_result['best_player']
+                simulation_result['position_battles'] = simulation_result['position_matchups']
+                
+                # Cache the compiled dictionary indefinitely
+                cache.set(cache_key, simulation_result, timeout=None)
             
+            # Retrieve winner name and win prob from cached result
+            predicted_winner = simulation_result['winner']
             if predicted_winner == team_a.name:
-                win_prob = simulation_result['team_a']['win_probability']
+                win_prob = simulation_result['probability_a']
             else:
-                win_prob = simulation_result['team_b']['win_probability']
-                
+                win_prob = simulation_result['probability_b']
+
+            # Create User History record (does not bypass DB for this user's history logs)
             SimulationHistory.objects.create(
                 user=request.user,
                 team_a=team_a,
@@ -62,27 +96,6 @@ class MatchupSimulationView(APIView):
                 winner_name=f"{predicted_winner} ({sim_type.upper()})",
                 win_probability=win_prob
             )
-            
-            # Map to requested frontend keys at root level
-            rating_a = simulation_result.get('team_a', {}).get('rating', 100.0)
-            rating_b = simulation_result.get('team_b', {}).get('rating', 100.0)
-            total = rating_a + rating_b
-            score_a = round(90 + (rating_a / total) * 35)
-            score_b = round(90 + (rating_b / total) * 35)
-
-            # Keep existing structure but add root-level aliases
-            simulation_result['winner'] = predicted_winner
-            simulation_result['probability_a'] = simulation_result['team_a']['win_probability']
-            simulation_result['probability_b'] = simulation_result['team_b']['win_probability']
-            simulation_result['score_a'] = score_a
-            simulation_result['score_b'] = score_b
-            simulation_result['ratings'] = {
-                'team_a': rating_a,
-                'team_b': rating_b
-            }
-            simulation_result['mvp player'] = simulation_result['best_player']
-            simulation_result['mvp_player'] = simulation_result['best_player']
-            simulation_result['position_battles'] = simulation_result['position_matchups']
             
             return Response(simulation_result, status=status.HTTP_200_OK)
         except Exception as e:

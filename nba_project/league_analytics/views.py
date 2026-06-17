@@ -72,15 +72,25 @@ class PlayerEraContextView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
+from django.core.cache import cache
+
 class NewsArticlesView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, *args, **kwargs):
-        query = request.query_params.get('q')
+        query = request.query_params.get('q') or 'basketball'
+        cache_key = f"news_feed_{query.replace(' ', '_')}"
+        
+        cached_data = cache.get(cache_key)
+        if cached_data:
+            return Response(cached_data, status=status.HTTP_200_OK)
+
         try:
             data = get_basketball_news(query=query)
+            cache.set(cache_key, data, timeout=7200) # cache for 2 hours
             return Response(data, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 
 
